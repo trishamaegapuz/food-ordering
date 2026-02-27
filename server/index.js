@@ -1,86 +1,59 @@
-const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { Pool } = require('pg');
-require('dotenv').config();
+import express from 'express';
+import session from 'express-session';
+import cors from 'cors';
+import { pool } from './db.js';
+import { hashPassword, comparePassword } from './components/hash.js';
 
 const app = express();
+const PORT = 3000;
 
-// Middleware
-app.use(cors());
-app.use(express.json()); // Para mabasa ang JSON data mula sa frontend
+app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 
-// Database Connection
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+app.use(session({
+  name: 'foodapp_sid',
+  secret: 'dev-secret-key-123',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 }
+}));
+
+// REGISTER
+app.post('/api/register', async (req, res) => {
+  const { username, password, email } = req.body;
+  try {
+    const hashedPassword = await hashPassword(password);
+    const result = await pool.query(
+      'INSERT INTO user_accounts (username, password, email, role) VALUES ($1, $2, $3, $4) RETURNING id, username, role',
+      [username, hashedPassword, email, 'customer'] // Default is customer
+    );
+    res.status(201).json({ success: true, user: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Registration failed. Check if username exists." });
+  }
 });
 
-// --- ROUTES ---
+// LOGIN
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const result = await pool.query('SELECT * FROM user_accounts WHERE username = $1', [username]);
+    if (result.rows.length === 0) return res.status(401).json({ success: false, message: "User not found" });
 
-// 1. REGISTER ROUTE
-app.post('/register', async (req, res) => {
-    try {
-        const { username, password } = req.body;
+    const user = result.rows[0];
+    const match = await comparePassword(password, user.password);
+    
+    if (!match) return res.status(401).json({ success: false, message: "Wrong password" });
 
-        // I-hash ang password (Security first!)
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // I-save sa 'users' table na ginawa natin kanina
-        const newUser = await pool.query(
-            "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING *",
-            [username, hashedPassword]
-        );
-
-        res.json({ message: "User registered successfully!", user: newUser.rows[0].username });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error during registration.");
-    }
+    req.session.user = { id: user.id, username: user.username, role: user.role };
+    res.json({ success: true, user: { username: user.username, role: user.role } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 });
 
-// 2. LOGIN ROUTE
-app.post('/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-
-        // Hanapin ang user
-        const user = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
-
-        if (user.rows.length === 0) {
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        // I-compare ang password
-        const validPassword = await bcrypt.compare(password, user.rows[0].password_hash);
-
-        if (!validPassword) {
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        // Gawa ng Token (JWT)
-        const token = jwt.sign({ id: user.rows[0].user_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.json({ token, username: user.rows[0].username });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error during login.");
-    }
-});
-
-// 3. LOGOUT ROUTE
-// Sa JWT, ang logout ay kadalasang ginagawa sa Frontend (dine-delete ang token).
-// Pero heto ang route kung gusto mong mag-send ng confirmation.
-app.post('/logout', (req, res) => {
-    res.json({ message: "Logged out successfully. Please delete your token on the client side." });
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`SERVER RUNNING ON PORT ${PORT}`));
