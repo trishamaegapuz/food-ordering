@@ -26,3 +26,11 @@ CREATE TABLE IF NOT EXISTS orders (
     status VARCHAR(20) DEFAULT 'pending',
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+    product_id INTEGER REFERENCES products(id),
+    quantity INTEGER NOT NULL,
+    price_at_time_of_purchase DECIMAL(10, 2) NOT NULL
+);
