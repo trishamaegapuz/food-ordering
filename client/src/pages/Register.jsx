@@ -8,11 +8,13 @@ const Register = () => {
     full_name: '', 
     email: '', 
     password: '',
-    role: 'customer'      // role dropdown restored
+    role: 'customer'
   });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ show: false, message: '', type: '' });
   const navigate = useNavigate();
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
   useEffect(() => {
     if (status.show) {
@@ -28,7 +30,8 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:3000/api/register', formData);
+      // FIXED: URL updated from localhost to dynamic API_URL
+      await axios.post(`${API_URL}/api/register`, formData);
       setStatus({ 
         show: true, 
         message: "Registration Successful! Redirecting to login...", 
@@ -86,7 +89,6 @@ const Register = () => {
               required 
             />
             
-            {/* Role selection – restored */}
             <select 
               style={styles.input} 
               value={formData.role} 
@@ -120,7 +122,7 @@ const Register = () => {
   );
 };
 
-// Styles unchanged
+// Styles same as your original
 const styles = {
   background: {
     backgroundImage: `url('https://wallpapers.com/images/featured/food-4k-spdnpz7bhmx4kv2r.jpg')`,
