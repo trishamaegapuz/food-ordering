@@ -108,17 +108,20 @@ const authenticateAdmin = (req, res, next) => {
   next();
 };
 
+// Add this near the top with other configs
+const ADMIN_REGISTRATION_KEY = 'your-secret-key-here'; // change this to a strong secret
+
 // ==================== AUTH ROUTES ====================
 app.post('/api/register', async (req, res) => {
-  const { full_name, password, email, delivery_address, role } = req.body; 
+  const { full_name, password, email, role } = req.body; 
   try {
     const hashedPassword = await hashPassword(password);
-    const userRole = role || 'customer';
+    const userRole = role || 'customer'; // use provided role, fallback to customer
     const result = await pool.query(
-      `INSERT INTO user_accounts (full_name, password, email, delivery_address, role) 
+      `INSERT INTO user_accounts (full_name, password, email, role, delivery_address) 
        VALUES ($1, $2, $3, $4, $5) 
        RETURNING id, full_name, email, role, delivery_address, latitude, longitude, profile_picture, contact`,
-      [full_name, hashedPassword, email, delivery_address, userRole]
+      [full_name, hashedPassword, email, userRole, null] // delivery_address set to NULL
     );
     res.status(201).json({ success: true, user: result.rows[0] });
   } catch (err) {
