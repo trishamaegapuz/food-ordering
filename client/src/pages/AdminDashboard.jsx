@@ -23,6 +23,9 @@ ChartJS.register(
   Title, Tooltip, Filler, Legend
 );
 
+// Palitan ang URL na ito kapag naka-deploy na sa Render
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({ 
@@ -46,7 +49,7 @@ const AdminDashboard = () => {
     }
     setLoading(true);
     try {
-      const statsRes = await fetch(`http://localhost:3000/api/admin/stats?view=${viewType}`, {
+      const statsRes = await fetch(`${API_URL}/api/admin/stats?view=${viewType}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!statsRes.ok) throw new Error('Failed to fetch stats');
@@ -129,41 +132,17 @@ const AdminDashboard = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-                {/* SALES OVERVIEW CHART */}
                 <div className="lg:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                   <div className="flex justify-between items-center mb-8">
-                    <div>
-                      <h3 className="font-black text-xl text-slate-800">Sales Overview</h3>
-                    </div>
+                    <div><h3 className="font-black text-xl text-slate-800">Sales Overview</h3></div>
                     <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
-                      <button 
-                        onClick={() => setViewType('weekly')}
-                        className={`px-4 py-2 rounded-lg text-xs font-black uppercase transition-all ${viewType === 'weekly' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                      >
-                        Weekly
-                      </button>
-                      <button 
-                        onClick={() => setViewType('monthly')}
-                        className={`px-4 py-2 rounded-lg text-xs font-black uppercase transition-all ${viewType === 'monthly' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                      >
-                        Monthly
-                      </button>
+                      <button onClick={() => setViewType('weekly')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase transition-all ${viewType === 'weekly' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>Weekly</button>
+                      <button onClick={() => setViewType('monthly')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase transition-all ${viewType === 'monthly' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>Monthly</button>
                     </div>
                   </div>
                   <div className="h-[350px]">
                     {stats.chartData?.labels?.length > 0 ? (
-                      <Line 
-                        data={lineChartData} 
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: { legend: { display: false } },
-                          scales: {
-                            y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                            x: { grid: { display: false } }
-                          }
-                        }} 
-                      />
+                      <Line data={lineChartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } } }} />
                     ) : (
                       <div className="h-full flex items-center justify-center text-slate-300 italic">No sales data available</div>
                     )}
@@ -171,11 +150,8 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="space-y-6">
-                  {/* QUICK ACTIONS */}
                   <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-100">
-                    <h3 className="font-black text-slate-800 mb-6 flex items-center gap-2 text-lg">
-                      <Zap size={20} className="text-yellow-500 fill-yellow-500" /> Quick Actions
-                    </h3>
+                    <h3 className="font-black text-slate-800 mb-6 flex items-center gap-2 text-lg"><Zap size={20} className="text-yellow-500 fill-yellow-500" /> Quick Actions</h3>
                     <div className="space-y-4">
                       <ActionButton icon={<Plus size={18}/>} label="Add New Product" color="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white" onClick={() => navigate('/admin/menu/add')} />
                       <ActionButton icon={<UserPlus size={18}/>} label="Create New User" color="bg-green-50 text-green-600 hover:bg-green-600 hover:text-white" onClick={() => navigate('/admin/users/add')} />
@@ -183,33 +159,23 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  {/* RECENT ORDERS */}
                   <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-100 h-[380px] flex flex-col">
-                    <h3 className="font-black text-slate-800 mb-4 flex items-center gap-2 text-lg">
-                       Recent Orders
-                    </h3>
+                    <h3 className="font-black text-slate-800 mb-4 flex items-center gap-2 text-lg">Recent Orders</h3>
                     <div className="overflow-y-auto space-y-4 pr-2 flex-grow scrollbar-hide">
                       {stats.recentOrders?.length > 0 ? stats.recentOrders.map((order, idx) => (
                         <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-                          <div className="bg-yellow-50 p-3 rounded-xl text-yellow-600">
-                            <Clock size={20} />
-                          </div>
+                          <div className="bg-yellow-50 p-3 rounded-xl text-yellow-600"><Clock size={20} /></div>
                           <div className="flex-grow">
                             <h4 className="font-black text-slate-800 text-sm">Order #{order.id} ({order.status})</h4>
-                            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">
-                              {order.full_name} • ₱{order.total} • {new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </p>
+                            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">{order.full_name} • ₱{order.total} • {new Date(order.created_at).toLocaleString()}</p>
                           </div>
                         </div>
-                      )) : (
-                        <div className="text-center py-10 text-slate-300 italic text-sm">No recent orders</div>
-                      )}
+                      )) : <div className="text-center py-10 text-slate-300 italic text-sm">No recent orders</div>}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* MANAGEMENT SECTIONS */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <ManagementCard title="User Management" desc="Manage all users and permissions" icon={<Users className="text-blue-500"/>} borderColor="border-l-blue-500" onClick={() => navigate('/admin/users')} />
                   <ManagementCard title="Menu Management" desc="Add, edit or remove menu items" icon={<Plus className="text-green-500"/>} borderColor="border-l-green-500" onClick={() => navigate('/admin/menu')} />
@@ -225,7 +191,6 @@ const AdminDashboard = () => {
         <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
       </footer>
 
-      {/* LOGOUT MODAL */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl">
