@@ -116,7 +116,7 @@ const Profile = () => {
     setOrdersLoading(true);
     setOrdersError(null);
     try {
-      const res = await fetch(`http://localhost:3000/api/orders?user_id=${userId}`, {
+      const res = await fetch(`https://food-ordering-wq61.onrender.com/api/orders?user_id=${userId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       if (!res.ok) throw new Error('Failed to fetch orders');
@@ -149,7 +149,7 @@ const Profile = () => {
       formData.append('address', profileForm.address);
       if (profilePicture) formData.append('profile_picture', profilePicture);
 
-      const res = await fetch(`http://localhost:3000/api/user/profile`, {
+      const res = await fetch(`https://food-ordering-wq61.onrender.com/api/user/profile`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         body: formData
@@ -175,7 +175,7 @@ const Profile = () => {
     }
     setIsSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/user/change-password`, {
+      const res = await fetch(`https://food-ordering-wq61.onrender.com/api/user/change-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,7 +205,7 @@ const Profile = () => {
     }
     setIsSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/user/account`, {
+      const res = await fetch(`https://food-ordering-wq61.onrender.com/api/user/account`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -308,7 +308,7 @@ const Profile = () => {
             <div style={styles.profileSection} onClick={() => navigate('/menu')}>
               {user.profile_picture ? (
                 <img 
-                  src={`http://localhost:3000/uploads/${user.profile_picture}`} 
+                  src={`https://food-ordering-wq61.onrender.com/uploads/${user.profile_picture}`} 
                   alt="Profile" 
                   style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
                 />
@@ -367,7 +367,7 @@ const Profile = () => {
             <div className="flex items-center space-x-6 mb-8">
               <div className="w-24 h-24 rounded-full overflow-hidden">
                 <img 
-                  src={user.profile_picture ? `http://localhost:3000/uploads/${user.profile_picture}` : 'https://via.placeholder.com/150'} 
+                  src={user.profile_picture ? `https://food-ordering-wq61.onrender.com/uploads/${user.profile_picture}` : 'https://via.placeholder.com/150'} 
                   alt="Profile" 
                   className="w-full h-full object-cover"
                 />

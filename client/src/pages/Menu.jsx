@@ -103,7 +103,7 @@ const Menu = () => {
     setDeliveryAddress(userData.address || '');
 
     // Fetch products
-    fetch('http://localhost:3000/api/products')
+    fetch('https://food-ordering-wq61.onrender.com/api/products')
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error("Error loading products:", err));
@@ -125,7 +125,7 @@ const Menu = () => {
     setOrdersLoading(true);
     setOrdersError(null);
     try {
-      const res = await fetch(`http://localhost:3000/api/orders?user_id=${userId}`, {
+      const res = await fetch(`https://food-ordering-wq61.onrender.com/api/orders?user_id=${userId}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (!res.ok) {
@@ -192,7 +192,7 @@ const Menu = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:3000/api/user/address', {
+      const response = await fetch('https://food-ordering-wq61.onrender.com/api/user/address', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -253,7 +253,7 @@ const Menu = () => {
         delivery_address: deliveryAddress
       };
 
-      const response = await fetch('http://localhost:3000/api/orders', {
+      const response = await fetch('https://food-ordering-wq61.onrender.com/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -420,7 +420,7 @@ const Menu = () => {
             <div style={styles.profileSection} onClick={() => navigate('/profile')}>
               {user.profile_picture ? (
                 <img 
-                  src={`http://localhost:3000/uploads/${user.profile_picture}`} 
+                  src={`https://food-ordering-wq61.onrender.com/uploads/${user.profile_picture}`} 
                   alt="Profile" 
                   style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
                 />

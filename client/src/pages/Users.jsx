@@ -6,6 +6,13 @@ import {
   UserCircle, LogOut, Users as UsersIcon, X, AlertTriangle 
 } from 'lucide-react';
 
+/**
+ * FIX: Gagamit tayo ng dynamic API_URL. 
+ * Priority ang VITE_API_URL galing sa Vercel Environment Variables.
+ * Fallback ang iyong Render URL kung walang naka-set.
+ */
+const API_URL = import.meta.env.VITE_API_URL || 'https://food-ordering-wq61.onrender.com';
+
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,14 +43,23 @@ const Users = () => {
 
   const fetchUsers = async () => {
     const token = localStorage.getItem('token');
+    setLoading(true);
     try {
-      const res = await axios.get('http://localhost:3000/api/users', {
+      // FIX: Ginagamit na ang template literal ${API_URL} para flexible ang endpoint
+      const res = await axios.get(`${API_URL}/api/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUsers(res.data);
-      setLoading(false);
+      
+      // Siguraduhin na array ang data para hindi mag-error ang .map()
+      if (Array.isArray(res.data)) {
+        setUsers(res.data);
+      } else {
+        setUsers([]);
+      }
     } catch (err) {
       console.error("Fetch error:", err);
+      setUsers([]);
+    } finally {
       setLoading(false);
     }
   };
@@ -62,11 +78,11 @@ const Users = () => {
     const token = localStorage.getItem('token');
     try {
       const response = await axios.put(
-        `http://localhost:3000/api/users/${editingUser.id}`, 
+        `${API_URL}/api/users/${editingUser.id}`, 
         editFormData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (response.data.success) {
+      if (response.data.success || response.status === 200) {
         setEditingUser(null);
         fetchUsers();
       }
@@ -78,7 +94,7 @@ const Users = () => {
   const confirmDelete = async () => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:3000/api/users/${isDeletingUser}`, {
+      await axios.delete(`${API_URL}/api/users/${isDeletingUser}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(users.filter(user => user.id !== isDeletingUser));
@@ -145,7 +161,7 @@ const Users = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {users.map((user) => (
+                  {!loading && users.map((user) => (
                     <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="px-8 py-6 text-slate-400 font-mono text-xs">#{user.id}</td>
                       <td className="px-8 py-6">
@@ -181,22 +197,35 @@ const Users = () => {
                   ))}
                 </tbody>
               </table>
-              {loading && <div className="p-20 text-center font-bold text-slate-400 italic">Fetching user data...</div>}
-              {!loading && users.length === 0 && <div className="p-20 text-center font-bold text-slate-400">No users found in database.</div>}
+              
+              {/* STATUS MESSAGES */}
+              {loading && (
+                <div className="p-20 text-center flex flex-col items-center gap-3">
+                   <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                   <p className="font-bold text-slate-400 italic">Fetching user data...</p>
+                </div>
+              )}
+              {!loading && users.length === 0 && (
+                <div className="p-20 text-center">
+                  <p className="font-bold text-slate-400">No users found in database.</p>
+                  <p className="text-xs text-slate-300 mt-1">Check your API connection at {API_URL}</p>
+                </div>
+              )}
             </div>
           </div>
         </main>
       </div>
 
-      {/* --- UPDATED FOOTER (PAREHAS SA DASHBOARD) --- */}
       <footer className="bg-[#1d3557] text-white py-6 text-center w-full">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
       </footer>
 
       {/* --- MODALS --- */}
+      
+      {/* EDIT MODAL */}
       {editingUser && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="p-8 border-b flex justify-between items-center">
               <h3 className="font-black text-2xl text-slate-800 tracking-tight">Edit User</h3>
               <button onClick={() => setEditingUser(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={24}/></button>
@@ -208,6 +237,7 @@ const Users = () => {
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
                   value={editFormData.full_name} 
                   onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
+                  required
                 />
               </div>
               <div>
@@ -216,6 +246,7 @@ const Users = () => {
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
                   value={editFormData.email} 
                   onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                  required
                 />
               </div>
               <div>
@@ -237,9 +268,10 @@ const Users = () => {
         </div>
       )}
 
+      {/* DELETE MODAL */}
       {isDeletingUser && (
         <div className="fixed inset-0 bg-red-900/20 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="p-5 bg-red-50 rounded-3xl inline-block mb-6">
               <AlertTriangle size={48} className="text-red-500" />
             </div>
@@ -253,9 +285,10 @@ const Users = () => {
         </div>
       )}
 
+      {/* LOGOUT MODAL */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="p-5 bg-red-50 rounded-3xl inline-block mb-6">
               <LogOut size={48} className="text-red-500" />
             </div>

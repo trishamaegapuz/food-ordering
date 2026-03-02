@@ -39,7 +39,7 @@ const AddEditProduct = () => {
     }
 
     if (isEdit) {
-      axios.get(`http://localhost:3000/api/products`)
+      axios.get(`https://food-ordering-wq61.onrender.com/api/products/${id}`)
         .then(res => {
           const item = res.data.find(p => p.id === parseInt(id));
           if (item) setFormData(item);
@@ -69,9 +69,9 @@ const AddEditProduct = () => {
       };
 
       if (isEdit) {
-        await axios.put(`http://localhost:3000/api/products/${id}`, formData, config);
+        await axios.put(`https://food-ordering-wq61.onrender.com/api/products/${id}`, formData, config);
       } else {
-        await axios.post('http://localhost:3000/api/products', formData, config);
+        await axios.post('https://food-ordering-wq61.onrender.com/api/products', formData, config);
       }
       navigate('/admin/menu');
     } catch (err) {
