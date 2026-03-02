@@ -12,7 +12,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 3000;
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, 'uploads');
@@ -51,18 +50,21 @@ const upload = multer({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+const PORT = process.env.PORT || 3000; // Uses Render's port
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173', 
   credentials: true
 }));
 
 app.use(session({
   name: 'foodapp_sid',
-  secret: 'dev-secret-key-123',
+  secret: process.env.SESSION_SECRET || 'dev-secret-key-123', // Use an env var!
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, 
+    secure: process.env.NODE_ENV === 'production', // true if on Render
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
     httpOnly: true, 
     maxAge: 24 * 60 * 60 * 1000 
   }
