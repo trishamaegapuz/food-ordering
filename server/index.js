@@ -57,7 +57,7 @@ const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
   'https://food-ordering-sigma-ten.vercel.app',
   'http://localhost:5173',
-  /\.vercel\.app$/ // RegEx para payagan lahat ng vercel.app domains
+  /\.vercel\.app$/ 
 ];
 
 app.use(cors({
@@ -98,6 +98,7 @@ const authenticateToken = async (req, res, next) => {
   
   if (!token) return res.status(401).json({ success: false, error: 'No token provided' });
 
+  // Custom Token Format: "secret-session-token-ID"
   const parts = token.split('-');
   const userId = parts[parts.length - 1];
   
@@ -123,7 +124,6 @@ const authenticateAdmin = (req, res, next) => {
 app.post('/api/register', async (req, res) => {
   const { full_name, password, email, role } = req.body; 
   try {
-    // Check if email exists first
     const check = await pool.query('SELECT id FROM user_accounts WHERE email = $1', [email]);
     if (check.rows.length > 0) return res.status(400).json({ success: false, message: "Email already taken" });
 
@@ -340,9 +340,13 @@ app.delete('/api/admin/orders/:id', authenticateToken, authenticateAdmin, async 
 // ==================== ADMIN USER MANAGEMENT ====================
 app.get('/api/users', authenticateToken, authenticateAdmin, async (req, res) => {
   try {
+    console.log("Admin Requesting All Users...");
     const result = await pool.query('SELECT id, full_name, email, role, delivery_address, latitude, longitude FROM user_accounts ORDER BY id DESC');
     res.json(result.rows);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { 
+    console.error("Fetch Users Error:", err.message);
+    res.status(500).json({ error: err.message }); 
+  }
 });
 
 app.put('/api/users/:id', authenticateToken, authenticateAdmin, async (req, res) => {
@@ -428,5 +432,4 @@ app.get('/api/admin/sales-report', authenticateToken, authenticateAdmin, async (
 });
 
 // ==================== START SERVER ====================
-// Binding to 0.0.0.0 is better for Render
 app.listen(PORT, '0.0.0.0', () => console.log(`✅ SERVER RUNNING ON PORT ${PORT}`));
