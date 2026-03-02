@@ -10,9 +10,11 @@ const Login = () => {
   const [status, setStatus] = useState({ show: false, message: '', type: '' });
   const navigate = useNavigate();
 
+  // DYNAMIC URL: Gagamit ng Render URL kung deployed, localhost kung hindi.
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
   axios.defaults.withCredentials = true;
 
-  // Auto-hide notification
   useEffect(() => {
     if (status.show) {
       const timer = setTimeout(() => {
@@ -26,17 +28,14 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:3000/api/login', { email, password });
+      // FIXED: URL updated from localhost to dynamic API_URL
+      const res = await axios.post(`${API_URL}/api/login`, { email, password });
       
       if (res.data.success) {
         setStatus({ show: true, message: "Login Successful! Redirecting...", type: 'success' });
         
-        if (res.data.token) {
-          localStorage.setItem('token', res.data.token);
-        } else {
-          localStorage.setItem('token', 'authenticated_user'); 
-        }
-
+        // Save token and user details
+        localStorage.setItem('token', res.data.token || 'authenticated_user');
         localStorage.setItem('user', JSON.stringify(res.data.user));
         
         setTimeout(() => {
@@ -60,7 +59,6 @@ const Login = () => {
 
   return (
     <div style={styles.background}>
-      {/* --- CUSTOM TOAST NOTIFICATION --- */}
       {status.show && (
         <div style={{
           ...styles.toast,
@@ -120,6 +118,7 @@ const Login = () => {
   );
 };
 
+// Styles same as your original
 const styles = {
   background: {
     backgroundImage: `url('https://wallpapers.com/images/featured/food-4k-spdnpz7bhmx4kv2r.jpg')`,
@@ -146,7 +145,6 @@ const styles = {
     zIndex: 1000,
     boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
     minWidth: '320px',
-    animation: 'slideIn 0.5s ease-out',
     fontFamily: 'sans-serif'
   },
   overlay: {
