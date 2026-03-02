@@ -18,6 +18,9 @@ import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// FIX: Dynamic API URL
+const API_URL = import.meta.env.VITE_API_URL || 'https://food-ordering-wq61.onrender.com';
+
 const AdminSales = () => {
   const navigate = useNavigate();
   const [data, setData] = useState({ summary: {}, topItems: [], recentOrders: [] });
@@ -30,27 +33,35 @@ const AdminSales = () => {
   const fetchSalesData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:3000/api/admin/sales-report', {
+      const res = await axios.get(`${API_URL}/api/admin/sales-report`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setData(res.data);
     } catch (err) {
-      console.error("Fetch error", err);
+      console.error("Fetch sales error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchSalesData(); }, []);
+  useEffect(() => { 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    fetchSalesData(); 
+  }, [navigate]);
 
   const confirmLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/login');
     setShowLogoutModal(false);
   };
 
   const handleExport = () => {
-    if (data.recentOrders.length === 0) return;
+    if (!data.recentOrders || data.recentOrders.length === 0) return;
     const headers = ["Order ID", "Customer Name", "Total Amount", "Status", "Date"];
     const rows = data.recentOrders.map(order => [
       order.id, order.full_name, order.total, order.status, 
@@ -67,13 +78,14 @@ const AdminSales = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3000/api/admin/orders/${deleteModal.orderId}`, {
+      await axios.delete(`${API_URL}/api/admin/orders/${deleteModal.orderId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setDeleteModal({ show: false, orderId: null });
       fetchSalesData();
     } catch (err) {
       console.error("Delete failed", err);
+      alert("Error deleting record");
     }
   };
 
@@ -126,10 +138,10 @@ const AdminSales = () => {
             <>
               {/* STATS CARDS */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <SaleCard title="Daily Sales" value={data.summary.daily_sales} icon={<TrendingUp size={24}/>} color="#ef4444" />
-                <SaleCard title="Monthly Sales" value={data.summary.monthly_sales} icon={<Calendar size={24}/>} color="#3b82f6" />
-                <SaleCard title="Yearly Sales" value={data.summary.yearly_sales} icon={<BarChart3 size={24}/>} color="#a855f7" />
-                <SaleCard title="Total Sales" value={data.summary.total_sales} icon={<DollarSign size={24}/>} color="#22c55e" />
+                <SaleCard title="Daily Sales" value={data.summary.daily_sales || 0} icon={<TrendingUp size={24}/>} color="#ef4444" />
+                <SaleCard title="Monthly Sales" value={data.summary.monthly_sales || 0} icon={<Calendar size={24}/>} color="#3b82f6" />
+                <SaleCard title="Yearly Sales" value={data.summary.yearly_sales || 0} icon={<BarChart3 size={24}/>} color="#a855f7" />
+                <SaleCard title="Total Sales" value={data.summary.total_sales || 0} icon={<DollarSign size={24}/>} color="#22c55e" />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
@@ -149,7 +161,7 @@ const AdminSales = () => {
                   <div className="overflow-y-auto max-h-[400px]">
                     <table className="w-full text-left">
                       <tbody className="divide-y divide-slate-50 text-xs">
-                        {data.recentOrders.map(order => (
+                        {data.recentOrders && data.recentOrders.map(order => (
                           <tr key={order.id} className="hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4">
                               <p className="font-black text-slate-700">{order.full_name}</p>
@@ -180,7 +192,7 @@ const AdminSales = () => {
         <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
       </footer>
 
-      {/* --- MODALS (UNIFIED DESIGN) --- */}
+      {/* --- MODALS --- */}
 
       {/* DELETE CONFIRMATION MODAL */}
       {deleteModal.show && (
@@ -209,7 +221,7 @@ const AdminSales = () => {
         </div>
       )}
 
-      {/* LOGOUT MODAL (MATCHED TO DASHBOARD) */}
+      {/* LOGOUT MODAL */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">

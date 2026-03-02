@@ -17,6 +17,9 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
+// FIX: Dynamic API URL
+const API_URL = import.meta.env.VITE_API_URL || 'https://food-ordering-wq61.onrender.com';
+
 const commonLocations = [
   { name: 'Restaurant Kitchen', lat: 17.6085, lng: 120.6320 },
   { name: 'Poblacion Area', lat: 17.6100, lng: 120.6350 },
@@ -34,7 +37,7 @@ const AdminOrders = () => {
   const [updateOrderId, setUpdateOrderId] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState({ type: '', lat: '', lng: '', name: '' });
 
-  // --- LOGOUT LOGIC (IPINAREHAS SA DASHBOARD) ---
+  // --- LOGOUT LOGIC ---
   const handleLogoutClick = () => setShowLogoutModal(true);
   const cancelLogout = () => setShowLogoutModal(false);
   const confirmLogout = () => {
@@ -48,12 +51,13 @@ const AdminOrders = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:3000/api/admin/orders', {
+      const res = await axios.get(`${API_URL}/api/admin/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setOrders(res.data);
+      setOrders(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setError(err.response?.data?.error || "Connection Error");
+      console.error("Fetch orders error:", err);
     } finally {
       setLoading(false);
     }
@@ -70,17 +74,19 @@ const AdminOrders = () => {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      await axios.post('http://localhost:3000/api/admin/orders/status', 
+      await axios.post(`${API_URL}/api/admin/orders/status`, 
         { order_id: orderId, new_status: newStatus },
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
       fetchOrders();
-    } catch (err) { alert('Update failed'); }
+    } catch (err) { 
+      alert('Update failed'); 
+    }
   };
 
   const handleLocationUpdate = async () => {
     try {
-      await axios.post('http://localhost:3000/api/admin/orders/location',
+      await axios.post(`${API_URL}/api/admin/orders/location`,
         { 
           order_id: updateOrderId, 
           latitude: selectedLocation.lat, 
@@ -91,7 +97,9 @@ const AdminOrders = () => {
       );
       setShowUpdateModal(false);
       fetchOrders();
-    } catch (err) { alert('Location update failed'); }
+    } catch (err) { 
+      alert('Location update failed'); 
+    }
   };
 
   return (
@@ -195,7 +203,6 @@ const AdminOrders = () => {
         </main>
       </div>
 
-      {/* --- FOOTER (IPINAREHAS SA DASHBOARD) --- */}
       <footer className="bg-[#1d3557] text-white py-6 text-center w-full">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
       </footer>
@@ -203,10 +210,10 @@ const AdminOrders = () => {
       {/* --- UPDATE LOCATION MODAL --- */}
       {showUpdateModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="p-8 border-b flex justify-between items-center">
               <h3 className="font-black text-2xl text-slate-800 tracking-tight">Rider Tracking</h3>
-              <button onClick={() => setShowUpdateModal(false)} className="p-2 hover:bg-slate-100 rounded-full"><X/></button>
+              <button onClick={() => setShowUpdateModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X/></button>
             </div>
             <div className="p-8 space-y-6">
                <div>
@@ -215,7 +222,7 @@ const AdminOrders = () => {
                     className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all outline-none appearance-none font-bold text-sm"
                     onChange={(e) => {
                       const loc = commonLocations.find(l => l.name === e.target.value);
-                      setSelectedLocation(loc);
+                      if(loc) setSelectedLocation(loc);
                     }}
                   >
                     <option value="">-- Choose Location --</option>
@@ -243,10 +250,10 @@ const AdminOrders = () => {
         </div>
       )}
 
-      {/* --- LOGOUT MODAL (IPINAREHAS SA DASHBOARD) --- */}
+      {/* --- LOGOUT MODAL --- */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="p-5 bg-red-50 rounded-3xl inline-block mb-6">
               <LogOut size={48} className="text-red-500" />
             </div>
