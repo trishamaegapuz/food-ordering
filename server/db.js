@@ -1,14 +1,18 @@
 import pg from 'pg';
+import 'dotenv/config';
 
 export const pool = new pg.Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'food_ordering',
-  password: '12345678', // Palitan kung iba ang password mo sa pgAdmin
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Importante ito para sa cloud databases
+  }
 });
 
-pool.connect((err) => {
-  if (err) console.error('DB Connection Error:', err.message);
-  else console.log('Database Connected Successfully');
+// Dagdagan natin ito para makita natin ang eksaktong error sa logs
+pool.connect((err, client, release) => {
+  if (err) {
+    return console.error('❌ DB Connection Error:', err.stack);
+  }
+  console.log('✅ DATABASE CONNECTED SUCCESSFULLY TO NEON');
+  release();
 });
