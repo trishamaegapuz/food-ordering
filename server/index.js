@@ -53,16 +53,18 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const PORT = process.env.PORT || 3000;
 
-// Dynamic CORS: Papayagan nito ang Vercel URL mo
+// FIXED DYNAMIC CORS: Papayagan nito ang Vercel links mo (maski preview links)
 const allowedOrigins = [
   'https://food-ordering-sigma-ten.vercel.app',
   'http://localhost:5173',
-  process.env.FRONTEND_URL
+  /\.vercel\.app$/ // RegEx para payagan lahat ng vercel.app domains
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.some(pattern => 
+      typeof pattern === 'string' ? pattern === origin : pattern.test(origin)
+    )) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -85,10 +87,8 @@ app.use(session({
   }
 }));
 
-// Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ADDED: Health Check Route para ma-verify mo kung Live ang server
 app.get('/', (req, res) => res.send('✅ Food Ordering Backend is Running!'));
 
 // ==================== AUTHENTICATION MIDDLEWARE ====================
@@ -123,18 +123,22 @@ const authenticateAdmin = (req, res, next) => {
 app.post('/api/register', async (req, res) => {
   const { full_name, password, email, role } = req.body; 
   try {
+    // Check if email exists first
+    const check = await pool.query('SELECT id FROM user_accounts WHERE email = $1', [email]);
+    if (check.rows.length > 0) return res.status(400).json({ success: false, message: "Email already taken" });
+
     const hashedPassword = await hashPassword(password);
     const userRole = role || 'customer';
     const result = await pool.query(
       `INSERT INTO user_accounts (full_name, password, email, role, delivery_address) 
        VALUES ($1, $2, $3, $4, $5) 
-       RETURNING id, full_name, email, role, delivery_address, latitude, longitude, profile_picture, contact`,
+       RETURNING id, full_name, email, role`,
       [full_name, hashedPassword, email, userRole, null]
     );
     res.status(201).json({ success: true, user: result.rows[0] });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Registration failed." });
+    console.error("Reg Error:", err);
+    res.status(500).json({ success: false, message: "Registration failed: " + err.message });
   }
 });
 
@@ -424,4 +428,5 @@ app.get('/api/admin/sales-report', authenticateToken, authenticateAdmin, async (
 });
 
 // ==================== START SERVER ====================
-app.listen(PORT, () => console.log(`✅ SERVER RUNNING ON PORT ${PORT}`));
+// Binding to 0.0.0.0 is better for Render
+app.listen(PORT, '0.0.0.0', () => console.log(`✅ SERVER RUNNING ON PORT ${PORT}`));
