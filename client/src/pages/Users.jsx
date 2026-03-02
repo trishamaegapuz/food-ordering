@@ -9,7 +9,6 @@ import {
 /**
  * FIX: Gagamit tayo ng dynamic API_URL. 
  * Priority ang VITE_API_URL galing sa Vercel Environment Variables.
- * Fallback ang iyong Render URL kung walang naka-set.
  */
 const API_URL = import.meta.env.VITE_API_URL || 'https://food-ordering-wq61.onrender.com';
 
@@ -45,12 +44,10 @@ const Users = () => {
     const token = localStorage.getItem('token');
     setLoading(true);
     try {
-      // FIX: Ginagamit na ang template literal ${API_URL} para flexible ang endpoint
       const res = await axios.get(`${API_URL}/api/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // Siguraduhin na array ang data para hindi mag-error ang .map()
       if (Array.isArray(res.data)) {
         setUsers(res.data);
       } else {
@@ -134,7 +131,6 @@ const Users = () => {
           </div>
 
           <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden mb-10">
-            {/* Table Header Section */}
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white">
               <div className="flex items-center gap-3 text-slate-700 font-bold">
                 <div className="p-3 bg-blue-50 rounded-2xl">
@@ -198,7 +194,6 @@ const Users = () => {
                 </tbody>
               </table>
               
-              {/* STATUS MESSAGES */}
               {loading && (
                 <div className="p-20 text-center flex flex-col items-center gap-3">
                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -208,7 +203,6 @@ const Users = () => {
               {!loading && users.length === 0 && (
                 <div className="p-20 text-center">
                   <p className="font-bold text-slate-400">No users found in database.</p>
-                  <p className="text-xs text-slate-300 mt-1">Check your API connection at {API_URL}</p>
                 </div>
               )}
             </div>
@@ -221,8 +215,6 @@ const Users = () => {
       </footer>
 
       {/* --- MODALS --- */}
-      
-      {/* EDIT MODAL */}
       {editingUser && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -268,7 +260,6 @@ const Users = () => {
         </div>
       )}
 
-      {/* DELETE MODAL */}
       {isDeletingUser && (
         <div className="fixed inset-0 bg-red-900/20 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -276,7 +267,7 @@ const Users = () => {
               <AlertTriangle size={48} className="text-red-500" />
             </div>
             <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">Delete User?</h3>
-            <p className="text-slate-400 font-medium mb-8 leading-relaxed">This action cannot be undone. All user data will be removed from the system.</p>
+            <p className="text-slate-400 font-medium mb-8 leading-relaxed">This action cannot be undone.</p>
             <div className="flex gap-4">
               <button onClick={() => setIsDeletingUser(null)} className="flex-1 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">Cancel</button>
               <button onClick={confirmDelete} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Delete</button>
@@ -285,7 +276,6 @@ const Users = () => {
         </div>
       )}
 
-      {/* LOGOUT MODAL */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -293,7 +283,7 @@ const Users = () => {
               <LogOut size={48} className="text-red-500" />
             </div>
             <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">Confirm Logout?</h3>
-            <p className="text-slate-400 font-medium mb-8">Are you sure you want to end your current session?</p>
+            <p className="text-slate-400 font-medium mb-8">Are you sure?</p>
             <div className="flex gap-4">
               <button onClick={cancelLogout} className="flex-1 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">Back</button>
               <button onClick={confirmLogout} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Logout</button>
