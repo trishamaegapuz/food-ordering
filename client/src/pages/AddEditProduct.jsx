@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { 
   Save, ArrowLeft, Image as ImageIcon, 
-  Upload, LogOut 
+  Upload, LogOut, CheckCircle, AlertCircle, X 
 } from 'lucide-react';
 
 const AddEditProduct = () => {
@@ -19,7 +19,29 @@ const AddEditProduct = () => {
     category: 'Main Courses',
     image_url: ''
   });
+  
+  // States para sa Design-based Notifications
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Auto-hide notification
+  useEffect(() => {
+    if (notification.show) {
+      const timer = setTimeout(() => {
+        setNotification({ ...notification, show: false });
+        // Kung success ang add/edit, navigate pagkatapos ng toast
+        if (notification.type === 'success' && notification.message.includes('successfully')) {
+           navigate('/admin/menu');
+        }
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [notification, navigate]);
+
+  const showCustomToast = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+  };
 
   // --- LOGOUT LOGIC ---
   const handleLogoutClick = () => setShowLogoutModal(true);
@@ -39,10 +61,8 @@ const AddEditProduct = () => {
     }
 
     if (isEdit) {
-      // Fetch products and find the specific one
       axios.get(`https://food-ordering-wq61.onrender.com/api/products`)
         .then(res => {
-          // Check if data is an array or object and find the item
           const products = Array.isArray(res.data) ? res.data : [];
           const item = products.find(p => p.id === parseInt(id));
           if (item) {
@@ -62,9 +82,8 @@ const AddEditProduct = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Basic check for file size (2MB limit)
       if (file.size > 2 * 1024 * 1024) {
-        alert("File is too large! Please upload an image smaller than 2MB.");
+        showCustomToast("File too large! Max 2MB only.", "error");
         return;
       }
       const reader = new FileReader();
@@ -77,6 +96,7 @@ const AddEditProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const token = localStorage.getItem('token');
 
     try {
@@ -87,29 +107,43 @@ const AddEditProduct = () => {
         }
       };
 
-      // Prepare data for submission
       const submissionData = {
         ...formData,
-        price: parseFloat(formData.price) // Ensure price is a number
+        price: parseFloat(formData.price)
       };
 
       if (isEdit) {
         await axios.put(`https://food-ordering-wq61.onrender.com/api/products/${id}`, submissionData, config);
-        alert("Dish updated successfully!");
+        showCustomToast("Dish updated successfully!", "success");
       } else {
         await axios.post('https://food-ordering-wq61.onrender.com/api/products', submissionData, config);
-        alert("New dish added successfully!");
+        showCustomToast("New dish added successfully!", "success");
       }
-      navigate('/admin/menu');
+      // Note: Ang navigation ay nasa useEffect ng notification para makita muna ang toast
     } catch (err) {
-      console.error("Save error:", err);
-      alert(err.response?.data?.error || "Error saving product. Check if the image is too large.");
+      setIsSubmitting(false);
+      const errMsg = err.response?.data?.error || "Error saving product.";
+      showCustomToast(errMsg, "error");
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FC] font-sans text-slate-600">
       
+      {/* --- CUSTOM TOAST NOTIFICATION --- */}
+      {notification.show && (
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-top-5 duration-300">
+          <div className={`flex items-center gap-3 px-6 py-4 rounded-[1.5rem] shadow-2xl border ${
+            notification.type === 'success' 
+              ? 'bg-white border-green-100 text-green-600' 
+              : 'bg-white border-red-100 text-red-600'
+          }`}>
+            {notification.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+            <span className="font-black text-sm tracking-tight">{notification.message}</span>
+          </div>
+        </div>
+      )}
+
       <div className="flex-grow">
         {/* --- NAVIGATION BAR --- */}
         <nav className="bg-white border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
@@ -142,7 +176,14 @@ const AddEditProduct = () => {
               <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Back to Menu
             </button>
 
-            <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+            <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100 relative overflow-hidden">
+              {/* Loading Overlay kapag nag-sa-save */}
+              {isSubmitting && (
+                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                   <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+
               <h2 className="text-3xl font-black text-[#1d3557] mb-8 tracking-tight">
                 {isEdit ? 'Edit Dish' : 'Add New Dish'}
               </h2>
@@ -222,7 +263,11 @@ const AddEditProduct = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="w-full py-4 bg-[#1d3557] text-white rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg hover:bg-[#2a4a75] hover:scale-[1.01] transition-all active:scale-95">
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className={`w-full py-4 bg-[#1d3557] text-white rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg transition-all ${isSubmitting ? 'opacity-50' : 'hover:bg-[#2a4a75] hover:scale-[1.01] active:scale-95'}`}
+                >
                   <Save size={20} /> {isEdit ? 'Update Dish' : 'Add Dish'}
                 </button>
               </form>
