@@ -1,20 +1,17 @@
 import pg from 'pg';
+import 'dotenv/config';
 
 export const pool = new pg.Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASS,
-  port: process.env.DB_PORT || 5432,
+  connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false, // Required for Neon serverless connections
+    rejectUnauthorized: false, // This is mandatory for Neon
   },
 });
 
 pool.connect((err) => {
   if (err) {
-    console.error('DB Connection Error:', err.message);
+    console.error('❌ DB Connection Error:', err.message);
   } else {
-    console.log('Database Connected Successfully to Neon');
+    console.log('✅ Database Connected Successfully to Neon');
   }
 });
