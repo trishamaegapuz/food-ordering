@@ -7,6 +7,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { pool } from './db.js';
 import { hashPassword, comparePassword } from './components/hash.js';
+import 'dotenv/config'; // Siguraduhing load ang env variables
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,56 +20,53 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Multer configuration for profile picture uploads
+// Multer configuration
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
+  destination: (req, file, cb) => { cb(null, uploadDir); },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
+const upload = multer({ storage: storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mime = allowedTypes.test(file.mimetype);
-    if (ext && mime) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only images are allowed'));
-    }
-  }
-});
-
-// ==================== MIDDLEWARE ====================
+// ==================== MIDDLEWARE (CRITICAL UPDATES) ====================
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-const PORT = process.env.PORT || 3000; // Uses Render's port
+// Dynamic CORS: Papayagan nito ang Vercel URL mo
+const allowedOrigins = [
+  process.env.FRONTEND_URL, 
+  'https://food-ordering-sigma-ten.vercel.app', // Iyong Vercel link
+  'http://localhost:5173' // Para sa local testing
+];
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173', 
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
+// Session config for Production (Render)
 app.use(session({
   name: 'foodapp_sid',
-  secret: process.env.SESSION_SECRET || 'dev-secret-key-123', // Use an env var!
+  secret: process.env.SESSION_SECRET || 'super-secret-key-123',
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // true if on Render
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
+    secure: true, // Kailangan itong TRUE sa Render dahil HTTPS sila
+    sameSite: 'none', // Kailangan ito para sa cross-domain cookies (Vercel to Render)
     httpOnly: true, 
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
+
+const PORT = process.env.PORT || 3000;
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
