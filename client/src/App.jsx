@@ -1,36 +1,49 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
-import Menu from './pages/Menu'; 
-import AdminDashboard from './pages/AdminDashboard'; 
+import Login from './pages/Login'; 
+import Register from './pages/Register';
+import Menu from "./pages/Menu"; 
+import Profile from "./pages/Profile"; // <-- import Profile component
+import AdminDashboard from "./pages/AdminDashboard";
+import Users from './pages/Users';
+import AdminMenu from './pages/AdminMenu';
+import AddEditProduct from './pages/AddEditProduct';
+import AdminOrders from './pages/AdminOrders';
+import AdminSales from './pages/AdminSales';
+
+// Helper component to protect admin pages
+const ProtectedAdmin = ({ children }) => {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user'));
+  
+  if (!token || user?.role !== 'admin') {
+    return <Navigate to="/login" />;
+  }
+  return children;
+};
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50"> 
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/Menu" element={<Menu />} />
+        {/* Customer Routes */}
+        <Route path="/menu" element={<Menu />} />
+        <Route path="/profile" element={<Profile />} /> {/* <-- new route */}
 
-         
-          <Route path="*" element={
-            <div className="flex flex-col items-center justify-center h-screen">
-              <h1 className="text-4xl font-bold text-orange-600">404</h1>
-              <p className="text-gray-600">Opps! Hindi mahanap ang pahinang ito.</p>
-              <button 
-                onClick={() => window.location.href = '/login'}
-                className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition"
-              >
-                Balik sa Login
-              </button>
-            </div>
-          } />
-        </Routes>
-      </div>
+        {/* Admin Protected Routes */}
+        <Route path="/admin-dashboard" element={<ProtectedAdmin><AdminDashboard /></ProtectedAdmin>} />
+        <Route path="/admin/users" element={<ProtectedAdmin><Users /></ProtectedAdmin>} />
+        <Route path="/admin/menu" element={<ProtectedAdmin><AdminMenu /></ProtectedAdmin>} />
+        <Route path="/admin/orders" element={<ProtectedAdmin><AdminOrders /></ProtectedAdmin>} />
+        <Route path="/admin/menu/add" element={<ProtectedAdmin><AddEditProduct /></ProtectedAdmin>} />
+        <Route path="/admin/menu/edit/:id" element={<ProtectedAdmin><AddEditProduct /></ProtectedAdmin>} />
+        <Route path="/admin/sales" element={<ProtectedAdmin><AdminSales /></ProtectedAdmin>} />
+        
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
     </Router>
   );
 }
