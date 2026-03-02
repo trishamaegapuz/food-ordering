@@ -20,28 +20,11 @@ const AddEditProduct = () => {
     image_url: ''
   });
   
-  // States para sa Design-based Notifications
+  // MODAL STATES
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Auto-hide notification
-  useEffect(() => {
-    if (notification.show) {
-      const timer = setTimeout(() => {
-        setNotification({ ...notification, show: false });
-        // Kung success ang add/edit, navigate pagkatapos ng toast
-        if (notification.type === 'success' && notification.message.includes('successfully')) {
-           navigate('/admin/menu');
-        }
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [notification, navigate]);
-
-  const showCustomToast = (message, type = 'success') => {
-    setNotification({ show: true, message, type });
-  };
 
   // --- LOGOUT LOGIC ---
   const handleLogoutClick = () => setShowLogoutModal(true);
@@ -50,7 +33,6 @@ const AddEditProduct = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
-    setShowLogoutModal(false);
   };
 
   useEffect(() => {
@@ -83,9 +65,10 @@ const AddEditProduct = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        showCustomToast("File too large! Max 2MB only.", "error");
+        setErrorMessage("File is too large! Max 2MB only.");
         return;
       }
+      setErrorMessage('');
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, image_url: reader.result });
@@ -97,6 +80,7 @@ const AddEditProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage('');
     const token = localStorage.getItem('token');
 
     try {
@@ -114,36 +98,27 @@ const AddEditProduct = () => {
 
       if (isEdit) {
         await axios.put(`https://food-ordering-wq61.onrender.com/api/products/${id}`, submissionData, config);
-        showCustomToast("Dish updated successfully!", "success");
       } else {
         await axios.post('https://food-ordering-wq61.onrender.com/api/products', submissionData, config);
-        showCustomToast("New dish added successfully!", "success");
       }
-      // Note: Ang navigation ay nasa useEffect ng notification para makita muna ang toast
+      
+      // Ipakita ang Custom Success Modal imbes na alert()
+      setShowSuccessModal(true);
+      setIsSubmitting(false);
     } catch (err) {
       setIsSubmitting(false);
-      const errMsg = err.response?.data?.error || "Error saving product.";
-      showCustomToast(errMsg, "error");
+      setErrorMessage(err.response?.data?.error || "Error saving product. Please try again.");
     }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccessModal(false);
+    navigate('/admin/menu');
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FC] font-sans text-slate-600">
       
-      {/* --- CUSTOM TOAST NOTIFICATION --- */}
-      {notification.show && (
-        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-top-5 duration-300">
-          <div className={`flex items-center gap-3 px-6 py-4 rounded-[1.5rem] shadow-2xl border ${
-            notification.type === 'success' 
-              ? 'bg-white border-green-100 text-green-600' 
-              : 'bg-white border-red-100 text-red-600'
-          }`}>
-            {notification.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-            <span className="font-black text-sm tracking-tight">{notification.message}</span>
-          </div>
-        </div>
-      )}
-
       <div className="flex-grow">
         {/* --- NAVIGATION BAR --- */}
         <nav className="bg-white border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
@@ -177,10 +152,10 @@ const AddEditProduct = () => {
             </button>
 
             <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100 relative overflow-hidden">
-              {/* Loading Overlay kapag nag-sa-save */}
-              {isSubmitting && (
-                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
-                   <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              {/* Error Message Design */}
+              {errorMessage && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold">
+                  <AlertCircle size={20} /> {errorMessage}
                 </div>
               )}
 
@@ -266,9 +241,13 @@ const AddEditProduct = () => {
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className={`w-full py-4 bg-[#1d3557] text-white rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg transition-all ${isSubmitting ? 'opacity-50' : 'hover:bg-[#2a4a75] hover:scale-[1.01] active:scale-95'}`}
+                  className={`w-full py-4 bg-[#1d3557] text-white rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#2a4a75] hover:scale-[1.01] active:scale-95'}`}
                 >
-                  <Save size={20} /> {isEdit ? 'Update Dish' : 'Add Dish'}
+                  {isSubmitting ? (
+                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <><Save size={20} /> {isEdit ? 'Update Dish' : 'Add Dish'}</>
+                  )}
                 </button>
               </form>
             </div>
@@ -284,7 +263,7 @@ const AddEditProduct = () => {
       {/* --- LOGOUT MODAL --- */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="p-5 bg-red-50 rounded-3xl inline-block mb-6">
               <LogOut size={48} className="text-red-500" />
             </div>
@@ -294,6 +273,27 @@ const AddEditProduct = () => {
               <button onClick={cancelLogout} className="flex-1 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">Back</button>
               <button onClick={confirmLogout} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Logout</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- SUCCESS MODAL (REPLACEMENT FOR ALERT) --- */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-5 bg-green-50 rounded-3xl inline-block mb-6">
+              <CheckCircle size={48} className="text-green-500" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">Success!</h3>
+            <p className="text-slate-400 font-medium mb-8">
+              {isEdit ? 'The dish has been updated successfully.' : 'New dish has been added to the menu.'}
+            </p>
+            <button 
+              onClick={handleSuccessClose} 
+              className="w-full py-4 bg-green-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-green-200"
+            >
+              Continue
+            </button>
           </div>
         </div>
       )}
