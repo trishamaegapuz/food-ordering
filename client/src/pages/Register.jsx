@@ -7,9 +7,8 @@ const Register = () => {
   const [formData, setFormData] = useState({ 
     full_name: '', 
     email: '', 
-    password: '', 
-    delivery_address: '', 
-    role: 'customer' 
+    password: '',
+    role: 'customer'      // role dropdown restored
   });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ show: false, message: '', type: '' });
@@ -65,17 +64,37 @@ const Register = () => {
           <p style={styles.subtitle}>Create an account to start ordering</p>
           
           <form onSubmit={handleSubmit}>
-            <input style={styles.input} type="text" placeholder="Full Name" onChange={(e)=>setFormData({...formData, full_name:e.target.value})} required />
-            <input style={styles.input} type="email" placeholder="Email Address" onChange={(e)=>setFormData({...formData, email:e.target.value})} required />
-            <input style={styles.input} type="password" placeholder="Password" onChange={(e)=>setFormData({...formData, password:e.target.value})} required />
-            <input style={styles.input} type="text" placeholder="Delivery Address" onChange={(e)=>setFormData({...formData, delivery_address:e.target.value})} required />
+            <input 
+              style={styles.input} 
+              type="text" 
+              placeholder="Full Name" 
+              onChange={(e) => setFormData({...formData, full_name: e.target.value})} 
+              required 
+            />
+            <input 
+              style={styles.input} 
+              type="email" 
+              placeholder="Email Address" 
+              onChange={(e) => setFormData({...formData, email: e.target.value})} 
+              required 
+            />
+            <input 
+              style={styles.input} 
+              type="password" 
+              placeholder="Password" 
+              onChange={(e) => setFormData({...formData, password: e.target.value})} 
+              required 
+            />
             
-            <div style={{ position: 'relative' }}>
-              <select style={styles.input} value={formData.role} onChange={(e)=>setFormData({...formData, role:e.target.value})}>
-                  <option value="customer">Customer</option>
-                  <option value="admin">System Admin</option>
-              </select>
-            </div>
+            {/* Role selection – restored */}
+            <select 
+              style={styles.input} 
+              value={formData.role} 
+              onChange={(e) => setFormData({...formData, role: e.target.value})}
+            >
+              <option value="customer">Customer</option>
+              <option value="admin">Admin</option>
+            </select>
 
             <button 
               style={{
@@ -101,7 +120,7 @@ const Register = () => {
   );
 };
 
-// Same styles object for consistency
+// Styles unchanged
 const styles = {
   background: {
     backgroundImage: `url('https://wallpapers.com/images/featured/food-4k-spdnpz7bhmx4kv2r.jpg')`,
