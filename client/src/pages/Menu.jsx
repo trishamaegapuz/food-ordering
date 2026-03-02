@@ -2,46 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, ShoppingCart, X, Wallet, Truck, MapPin, Trash2, 
-  CreditCard, ChevronRight, LogOut, Map, CheckCircle, AlertCircle, RefreshCw 
+  CreditCard, ChevronRight, LogOut, Map, CheckCircle, AlertCircle, RefreshCw, ShoppingBag
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default marker icons in Leaflet with Webpack
+// Fix for default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-});
-
-// Custom icons for map tracking
-const blueIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-const greenIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-const redIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
 });
 
 const Menu = () => {
@@ -50,86 +22,37 @@ const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCart, setShowCart] = useState(false);
-  const [showTracking, setShowTracking] = useState(false);
-  const [trackingTab, setTrackingTab] = useState('active');
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [showAddressModal, setShowAddressModal] = useState(false);
-  const [showGCashModal, setShowGCashModal] = useState(false);
-  const [showCardModal, setShowCardModal] = useState(false);
-  const [showTrackingMapModal, setShowTrackingMapModal] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('cod');
   const [user, setUser] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
-  const [ordersError, setOrdersError] = useState(null);
-  const [selectedOrderForMap, setSelectedOrderForMap] = useState(null);
-  const [newAddress, setNewAddress] = useState('');
-  const [saveAddressToProfile, setSaveAddressToProfile] = useState(true);
-  const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [gcashDetails, setGcashDetails] = useState({ mobile: '', name: '', reference: '' });
-  const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvv: '', name: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (notification.show) {
-      const timer = setTimeout(() => {
-        setNotification({ ...notification, show: false });
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [notification]);
-
-  const showNotification = (message, type = 'success') => {
-    setNotification({ show: true, message, type });
-  };
-
-  useEffect(() => {
     const token = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
+    
     if (!token || !savedUser) {
       navigate('/login');
       return;
     }
+
     const userData = JSON.parse(savedUser);
     setUser(userData);
-    setDeliveryAddress(userData.address || '');
 
+    // Fetch Products
     fetch('https://food-ordering-wq61.onrender.com/api/products')
       .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(err => console.error("Error loading products:", err));
-
-    fetchOrders(userData.id);
-  }, [navigate]);
-
-  const fetchOrders = async (userId) => {
-    setOrdersLoading(true);
-    setOrdersError(null);
-    try {
-      const res = await fetch(`https://food-ordering-wq61.onrender.com/api/orders?user_id=${userId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      .then(data => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error loading products:", err);
+        setLoading(false);
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      const data = await res.json();
-      setOrders(data);
-    } catch (err) {
-      setOrdersError(err.message);
-    } finally {
-      setOrdersLoading(false);
-    }
-  };
-
-  const handleLogoutClick = () => setShowLogoutModal(true);
-  const confirmLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    navigate('/login');
-    setShowLogoutModal(false);
-  };
+  }, [navigate]);
 
   const addToCart = (item) => {
     const exist = cart.find(x => x.id === item.id);
@@ -138,72 +61,154 @@ const Menu = () => {
     } else {
       setCart([...cart, { ...item, qty: 1 }]);
     }
-    showNotification(`${item.name} added to cart`, 'success');
+    showNotification(`${item.name} added to cart!`);
   };
 
-  const calculateTotal = () => cart.reduce((total, item) => total + (item.price * item.qty), 0).toFixed(2);
-
-  const submitOrder = async (paymentData) => {
-    if (!deliveryAddress.trim()) {
-      showNotification('Please enter a delivery address.', 'error');
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const payload = {
-        user_id: user.id,
-        items: cart.map(item => ({ id: item.id, price: item.price, quantity: item.qty })),
-        payment_method: paymentMethod,
-        payment_details: paymentData,
-        delivery_address: deliveryAddress
-      };
-      const response = await fetch('https://food-ordering-wq61.onrender.com/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.error || 'Order failed');
-      setCart([]);
-      setShowCheckoutModal(false);
-      showNotification(`Order #${data.order_id} confirmed!`, 'success');
-      fetchOrders(user.id);
-      setShowTracking(true);
-    } catch (error) {
-      showNotification(`Payment failed: ${error.message}`, 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => setNotification({ show: false, message: '', type: 'success' }), 3000);
   };
 
-  const activeOrders = orders.filter(o => ['pending', 'confirmed', 'preparing', 'delivering'].includes(o.status));
-  const historyOrders = orders.filter(o => ['delivered', 'canceled'].includes(o.status));
+  const confirmLogout = () => {
+    localStorage.clear();
+    navigate('/login');
+  };
 
-  if (!user) return null;
+  // Filter products based on category and search
+  const filteredProducts = products.filter(p => {
+    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  if (loading && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
-    <div style={styles.page}>
-      {/* Navigation, Hero, Products Grid, and Sidebars would follow here based on full styling... */}
-      <nav style={styles.nav}>
-        <div onClick={() => navigate('/menu')}>
-          <span style={{ color: '#e63946', fontWeight: '900' }}>Food</span>Ordering
-        </div>
-        <div style={styles.navLinks}>
-          <div onClick={() => navigate('/profile')}>
-             {user.profile_picture ? (
-                <img src={`https://food-ordering-wq61.onrender.com/uploads/${user.profile_picture}`} alt="Profile" style={styles.avatarImg} />
-             ) : (
-                <div style={styles.avatar}>{user.full_name?.charAt(0)}</div>
-             )}
+    <div className="min-h-screen bg-[#F8F9FC] font-sans pb-20">
+      {/* --- NOTIFICATION --- */}
+      {notification.show && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] animate-bounce">
+          <div className={`px-6 py-3 rounded-full shadow-lg text-white font-bold flex items-center gap-2 ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+            <CheckCircle size={18} /> {notification.message}
           </div>
-          <button onClick={handleLogoutClick}><LogOut /></button>
+        </div>
+      )}
+
+      {/* --- NAVIGATION --- */}
+      <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+          <span className="text-red-500 text-2xl font-black italic">FAST</span>
+          <span className="text-[#1d3557] text-2xl font-black">FOOD</span>
+        </div>
+
+        <div className="flex-1 max-w-md mx-8 relative hidden md:block">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input 
+            type="text" 
+            placeholder="Search your favorite food..."
+            className="w-full bg-slate-100 border-none rounded-2xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button onClick={() => setShowCart(true)} className="relative p-3 bg-white shadow-sm border border-slate-100 rounded-2xl hover:bg-slate-50 transition-all">
+            <ShoppingCart size={22} className="text-[#1d3557]" />
+            {cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
+                {cart.reduce((a, c) => a + c.qty, 0)}
+              </span>
+            )}
+          </button>
+          
+          <div onClick={() => navigate('/profile')} className="cursor-pointer group">
+            {user?.profile_picture ? (
+              <img src={`https://food-ordering-wq61.onrender.com/uploads/${user.profile_picture}`} className="w-11 h-11 rounded-2xl object-cover border-2 border-transparent group-hover:border-red-500 transition-all" alt="Profile" />
+            ) : (
+              <div className="w-11 h-11 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center font-black group-hover:bg-red-200 transition-all">
+                {user?.full_name?.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+
+          <button onClick={() => setShowLogoutModal(true)} className="p-3 text-slate-400 hover:text-red-500 transition-colors">
+            <LogOut size={22} />
+          </button>
         </div>
       </nav>
-      {/* ...Simplified for brevity... */}
+
+      {/* --- HERO SECTION --- */}
+      <header className="p-6 md:p-10">
+        <div className="bg-[#1d3557] rounded-[3rem] p-8 md:p-16 text-white relative overflow-hidden shadow-2xl shadow-blue-900/20">
+          <div className="relative z-10 max-w-lg">
+            <span className="bg-red-500 text-white px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-4 inline-block">Free Delivery</span>
+            <h1 className="text-4xl md:text-6xl font-black mb-4 leading-tight">Fastest Food <br/> <span className="text-red-400">Delivery</span> in Town</h1>
+            <p className="text-blue-100 text-lg mb-8">Get your favorite meals delivered to your doorstep in less than 30 minutes.</p>
+            <button className="bg-white text-[#1d3557] px-8 py-4 rounded-2xl font-black hover:bg-red-500 hover:text-white transition-all shadow-lg">Order Now</button>
+          </div>
+          <ShoppingBag className="absolute -right-10 -bottom-10 text-white/10 w-80 h-80 rotate-12" />
+        </div>
+      </header>
+
+      {/* --- CATEGORIES --- */}
+      <section className="px-6 md:px-10 mb-8 overflow-x-auto flex gap-4 no-scrollbar">
+        {['All', 'Appetizers', 'Main Courses', 'Desserts', 'Beverages'].map((cat) => (
+          <button 
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-8 py-4 rounded-2xl font-bold whitespace-nowrap transition-all ${selectedCategory === cat ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-white text-slate-400 hover:bg-slate-50'}`}
+          >
+            {cat}
+          </button>
+        ))}
+      </section>
+
+      {/* --- PRODUCTS GRID --- */}
+      <main className="px-6 md:px-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {filteredProducts.map((item) => (
+          <div key={item.id} className="bg-white rounded-[2.5rem] p-5 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-2 transition-all group">
+            <div className="h-48 rounded-[2rem] overflow-hidden mb-5 relative">
+              <img src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-xl font-black text-[#1d3557]">
+                ₱{item.price}
+              </div>
+            </div>
+            <h3 className="text-xl font-black text-[#1d3557] mb-2">{item.name}</h3>
+            <p className="text-slate-400 text-sm mb-6 line-clamp-2">{item.description}</p>
+            <button 
+              onClick={() => addToCart(item)}
+              className="w-full py-4 bg-slate-50 text-[#1d3557] rounded-2xl font-black hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"
+            >
+              <ShoppingCart size={18} /> Add to Cart
+            </button>
+          </div>
+        ))}
+      </main>
+
+      {/* --- LOGOUT MODAL --- */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+          <div className="relative bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in zoom-in-95">
+            <div className="p-5 bg-red-50 rounded-3xl inline-block mb-6 text-red-500"><LogOut size={48} /></div>
+            <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">Logout?</h3>
+            <p className="text-slate-400 font-medium mb-8">Are you sure you want to end your session?</p>
+            <div className="flex gap-4">
+              <button onClick={() => setShowLogoutModal(false)} className="flex-1 py-4 font-black text-slate-400 uppercase text-[10px]">Back</button>
+              <button onClick={confirmLogout} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black uppercase text-[10px] shadow-lg shadow-red-200">Logout</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 export default Menu;
