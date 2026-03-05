@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
   BarChart3, TrendingUp, DollarSign, Calendar, 
-  Trash2, Download, LogOut, AlertCircle,
+  Trash2, LogOut, AlertCircle,
   Menu, Home, Users, ShoppingBag, ClipboardList, Plus, UserPlus
 } from 'lucide-react';
 import {
@@ -79,47 +79,6 @@ const AdminSales = () => {
     localStorage.removeItem('user');
     navigate('/login');
     setShowLogoutModal(false);
-  };
-
-  // --- UPDATED EXPORT CSV LOGIC ---
-  const handleExport = () => {
-    if (!data.recentOrders || data.recentOrders.length === 0) {
-      alert("Walang data na pwedeng i-export.");
-      return;
-    }
-
-    // Headers ng CSV
-    const headers = ["Order ID", "Customer Name", "Total Amount (PHP)", "Status", "Date", "Time"];
-
-    // Pag-convert ng data rows (nilagyan ng quotes para sa mga pangalan na may comma)
-    const rows = data.recentOrders.map(order => {
-      const dateObj = new Date(order.created_at);
-      return [
-        `#${order.id}`,
-        `"${order.full_name}"`, // Nilagyan ng quotes para safe sa Excel
-        order.total,
-        order.status,
-        dateObj.toLocaleDateString(),
-        dateObj.toLocaleTimeString()
-      ];
-    });
-
-    // Pagsasama ng headers at rows
-    const csvContent = [
-      headers.join(","), 
-      ...rows.map(row => row.join(","))
-    ].join("\n");
-
-    // Pag-create ng file download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Sales_Report_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link); // Required para sa ilang browsers
-    link.click();
-    document.body.removeChild(link); // Linis pagkatapos i-download
   };
 
   const confirmDelete = async () => {
@@ -302,18 +261,12 @@ const AdminSales = () => {
 
         {/* MAIN CONTENT - Responsive padding */}
         <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
-          {/* Header and Export - stack on mobile */}
+          {/* Header - stack on mobile */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6 sm:mb-10">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-[#1d3557] tracking-tight">Sales Analytics</h1>
               <p className="text-xs sm:text-sm text-slate-400 font-medium">Detailed revenue reports and product performance.</p>
             </div>
-            <button 
-              onClick={handleExport} 
-              className="w-full sm:w-auto bg-white border border-slate-200 px-4 sm:px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95 shadow-sm cursor-pointer"
-            >
-              <Download size={16} /> Export CSV Report
-            </button>
           </div>
 
           {loading ? (
