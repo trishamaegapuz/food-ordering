@@ -96,11 +96,17 @@ const AdminMenu = () => {
     });
   };
 
+  // Navigation helper para sa sidebar
+  const navigateTo = (path) => {
+    navigate(path);
+    setSidebarOpen(false);
+  };
+
   // Sidebar Link Component
   const SidebarLink = ({ icon, label, active = false, onClick }) => (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
         active 
           ? 'bg-white/10 text-white' 
           : 'text-white/60 hover:bg-white/10 hover:text-white'
@@ -129,7 +135,7 @@ const AdminMenu = () => {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden cursor-pointer"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -141,9 +147,12 @@ const AdminMenu = () => {
         lg:translate-x-0 transition-transform duration-300 ease-in-out
         w-64 bg-[#1d3557] text-white flex flex-col
       `}>
-        {/* Sidebar Header */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>
+        {/* Sidebar Header - Fully clickable */}
+        <div 
+          onClick={() => navigateTo('/admin-dashboard')}
+          className="p-6 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
+        >
+          <div className="flex items-center gap-2">
             <span className="text-[#e63946] text-xl font-black">Food</span>
             <span className="text-white text-xl font-black">Ordering</span>
           </div>
@@ -156,43 +165,28 @@ const AdminMenu = () => {
             <SidebarLink 
               icon={<Home size={18} />} 
               label="Dashboard" 
-              onClick={() => {
-                navigate('/admin-dashboard');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin-dashboard')}
             />
             <SidebarLink 
               icon={<Users size={18} />} 
               label="Users" 
-              onClick={() => {
-                navigate('/admin/users');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/users')}
             />
             <SidebarLink 
               icon={<ShoppingBag size={18} />} 
               label="Menu" 
               active={true}
-              onClick={() => {
-                navigate('/admin/menu');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/menu')}
             />
             <SidebarLink 
               icon={<ClipboardList size={18} />} 
               label="Orders" 
-              onClick={() => {
-                navigate('/admin/orders');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/orders')}
             />
             <SidebarLink 
               icon={<BarChart3 size={18} />} 
               label="Sales" 
-              onClick={() => {
-                navigate('/admin/sales');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/sales')}
             />
           </div>
 
@@ -203,18 +197,12 @@ const AdminMenu = () => {
               <SidebarLink 
                 icon={<Plus size={18} />} 
                 label="Add Product" 
-                onClick={() => {
-                  navigate('/admin/menu/add');
-                  setSidebarOpen(false);
-                }}
+                onClick={() => navigateTo('/admin/menu/add')}
               />
               <SidebarLink 
                 icon={<UserPlus size={18} />} 
                 label="New User" 
-                onClick={() => {
-                  navigate('/admin/users/add');
-                  setSidebarOpen(false);
-                }}
+                onClick={() => navigateTo('/admin/users/add')}
               />
             </div>
           </div>
@@ -224,7 +212,7 @@ const AdminMenu = () => {
         <div className="p-4 border-t border-white/10">
           <button 
             onClick={() => setShowLogoutModal(true)}
-            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white cursor-pointer"
           >
             <LogOut size={18} />
             <span className="text-sm font-medium">Logout</span>
@@ -238,7 +226,7 @@ const AdminMenu = () => {
         <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-4 sticky top-0 z-30 shadow-sm">
           <button 
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             <Menu size={24} className="text-slate-600" />
           </button>
@@ -260,7 +248,7 @@ const AdminMenu = () => {
               <h1 className="text-2xl md:text-3xl font-black text-[#1d3557] tracking-tight">Menu Management</h1>
               <p className="text-xs md:text-sm text-slate-400 font-medium">Manage your restaurant items here.</p>
             </div>
-            <button onClick={() => navigate('/admin/menu/add')} className="w-full md:w-auto bg-[#1d3557] text-white px-4 md:px-6 py-3 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg hover:scale-105 transition-all text-sm">
+            <button onClick={() => navigate('/admin/menu/add')} className="w-full md:w-auto bg-[#1d3557] text-white px-4 md:px-6 py-3 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg hover:scale-105 transition-all text-sm cursor-pointer">
               <Plus size={18} /> Add New Item
             </button>
           </div>
@@ -282,7 +270,7 @@ const AdminMenu = () => {
                 <button
                   key={cat}
                   onClick={() => setFilterCategory(cat)}
-                  className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl font-bold text-[10px] md:text-xs uppercase transition-all whitespace-nowrap ${
+                  className={`px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl font-bold text-[10px] md:text-xs uppercase transition-all whitespace-nowrap cursor-pointer ${
                     filterCategory === cat ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
                   }`}
                 >
@@ -321,10 +309,10 @@ const AdminMenu = () => {
                     <h4 className="font-black text-slate-800 text-base md:text-lg mb-1 line-clamp-1">{item.name}</h4>
                     <p className="text-slate-400 text-xs line-clamp-2 mb-3 md:mb-4">{item.description}</p>
                     <div className="flex gap-2 pt-3 md:pt-4 border-t border-slate-50">
-                      <button onClick={() => navigate(`/admin/menu/edit/${item.id}`)} className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-2 md:py-2.5 bg-slate-50 text-slate-600 font-bold rounded-lg md:rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all text-[10px] md:text-xs">
+                      <button onClick={() => navigate(`/admin/menu/edit/${item.id}`)} className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-2 md:py-2.5 bg-slate-50 text-slate-600 font-bold rounded-lg md:rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all text-[10px] md:text-xs cursor-pointer">
                         <Edit size={12} /> Edit
                       </button>
-                      <button onClick={() => setItemToDelete(item)} className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-2 md:py-2.5 bg-slate-50 text-slate-600 font-bold rounded-lg md:rounded-xl hover:bg-red-50 hover:text-red-600 transition-all text-[10px] md:text-xs">
+                      <button onClick={() => setItemToDelete(item)} className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-2 md:py-2.5 bg-slate-50 text-slate-600 font-bold rounded-lg md:rounded-xl hover:bg-red-50 hover:text-red-600 transition-all text-[10px] md:text-xs cursor-pointer">
                         <Trash2 size={12} /> Delete
                       </button>
                     </div>
@@ -353,8 +341,8 @@ const AdminMenu = () => {
               <p className="text-sm md:text-base text-slate-400 font-medium">Are you sure?</p>
             </div>
             <div className="p-4 md:p-6 bg-slate-50 flex flex-col md:flex-row gap-2 md:gap-3">
-              <button onClick={() => setItemToDelete(null)} className="w-full md:flex-1 py-3 md:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl">Cancel</button>
-              <button onClick={handleDelete} className="w-full md:flex-1 py-3 md:py-4 bg-red-500 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Yes, Delete</button>
+              <button onClick={() => setItemToDelete(null)} className="w-full md:flex-1 py-3 md:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl cursor-pointer">Cancel</button>
+              <button onClick={handleDelete} className="w-full md:flex-1 py-3 md:py-4 bg-red-500 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200 cursor-pointer">Yes, Delete</button>
             </div>
           </div>
         </div>
@@ -369,8 +357,8 @@ const AdminMenu = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-2 tracking-tight">Confirm Logout?</h3>
             <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-              <button onClick={cancelLogout} className="w-full md:flex-1 py-3 md:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl">Back</button>
-              <button onClick={confirmLogout} className="w-full md:flex-1 py-3 md:py-4 bg-red-500 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Logout</button>
+              <button onClick={cancelLogout} className="w-full md:flex-1 py-3 md:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl cursor-pointer">Back</button>
+              <button onClick={confirmLogout} className="w-full md:flex-1 py-3 md:py-4 bg-red-500 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200 cursor-pointer">Logout</button>
             </div>
           </div>
         </div>
