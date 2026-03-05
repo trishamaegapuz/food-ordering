@@ -105,87 +105,88 @@ const Users = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FC] font-sans text-slate-600">
       <div className="flex-grow">
-        {/* --- NAVIGATION --- */}
-        <nav className="bg-white border-b border-slate-100 px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>
-            <span className="text-[#e63946] text-2xl font-black">Food</span>
-            <span className="text-[#1d3557] text-2xl font-black">Ordering</span>
+        {/* --- NAVIGATION - Responsive --- */}
+        <nav className="bg-white border-b border-slate-100 px-4 md:px-8 py-3 md:py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+          <div className="flex items-center gap-2 cursor-pointer flex-shrink-0" onClick={() => navigate('/admin-dashboard')}>
+            <span className="text-[#e63946] text-xl md:text-2xl font-black">Food</span>
+            <span className="text-[#1d3557] text-xl md:text-2xl font-black">Ordering</span>
           </div>
-          <div className="flex items-center gap-6 text-sm font-medium">
-            <button onClick={() => navigate('/admin-dashboard')} className="text-slate-400 hover:text-blue-500 transition-colors">Dashboard</button>
-            <button className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Users</button>
-            <button onClick={() => navigate('/admin/menu')} className="text-slate-400 hover:text-blue-500 transition-colors">Menu</button>
-            <button onClick={() => navigate('/admin/orders')} className="text-slate-400 hover:text-blue-500 transition-colors">Orders</button>
-            <button onClick={() => navigate('/admin/sales')} className="text-slate-400 hover:text-blue-500 transition-colors">Sales</button>
-            <button onClick={handleLogoutClick} className="text-slate-400 hover:text-red-500 flex items-center gap-1 transition-colors font-bold ml-4">
-              Logout <LogOut size={16} />
+          {/* Scrollable nav links on mobile */}
+          <div className="flex items-center gap-4 md:gap-6 text-xs md:text-sm font-medium overflow-x-auto pb-1 flex-nowrap ml-4 hide-scrollbar">
+            <button onClick={() => navigate('/admin-dashboard')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Dashboard</button>
+            <button className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 whitespace-nowrap">Users</button>
+            <button onClick={() => navigate('/admin/menu')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Menu</button>
+            <button onClick={() => navigate('/admin/orders')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Orders</button>
+            <button onClick={() => navigate('/admin/sales')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Sales</button>
+            <button onClick={handleLogoutClick} className="text-slate-400 hover:text-red-500 flex items-center gap-1 whitespace-nowrap font-bold ml-2 md:ml-4">
+              Logout <LogOut size={14} className="md:size-16" />
             </button>
           </div>
         </nav>
 
-        {/* --- MAIN CONTENT --- */}
-        <main className="p-8 max-w-[1200px] mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-black text-[#1d3557] tracking-tight">User Management</h1>
-            <p className="text-slate-400 font-medium">View and manage all registered accounts and permissions.</p>
+        {/* --- MAIN CONTENT - Responsive padding --- */}
+        <main className="p-4 md:p-8 max-w-[1200px] mx-auto">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-black text-[#1d3557] tracking-tight">User Management</h1>
+            <p className="text-xs md:text-sm text-slate-400 font-medium">View and manage all registered accounts and permissions.</p>
           </div>
 
-          <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden mb-10">
-            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white">
+          <div className="bg-white rounded-xl md:rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden mb-10">
+            <div className="p-4 md:p-8 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white">
               <div className="flex items-center gap-3 text-slate-700 font-bold">
-                <div className="p-3 bg-blue-50 rounded-2xl">
-                  <UsersIcon size={24} className="text-blue-500" />
+                <div className="p-2 md:p-3 bg-blue-50 rounded-xl md:rounded-2xl">
+                  <UsersIcon size={20} className="md:size-24 text-blue-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-800 leading-tight">Registered Accounts</h3>
-                  <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Database Records</p>
+                  <h3 className="text-base md:text-lg font-black text-slate-800 leading-tight">Registered Accounts</h3>
+                  <p className="text-[9px] md:text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Database Records</p>
                 </div>
               </div>
-              <span className="bg-blue-50 text-blue-600 px-5 py-2 rounded-2xl text-xs font-black shadow-sm border border-blue-100">
+              <span className="bg-blue-50 text-blue-600 px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[10px] md:text-xs font-black shadow-sm border border-blue-100 whitespace-nowrap">
                 {users.length} TOTAL USERS
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50/50 text-slate-400 uppercase text-[11px] font-bold tracking-widest">
+              <table className="w-full text-left min-w-[700px] md:min-w-full">
+                <thead className="bg-slate-50/50 text-slate-400 uppercase text-[9px] md:text-[11px] font-bold tracking-widest">
                   <tr>
-                    <th className="px-8 py-5">ID</th>
-                    <th className="px-8 py-5">User Details</th>
-                    <th className="px-8 py-5 text-center">Account Type</th>
-                    <th className="px-8 py-5 text-center">Actions</th>
+                    <th className="px-4 md:px-8 py-3 md:py-5">ID</th>
+                    <th className="px-4 md:px-8 py-3 md:py-5">User Details</th>
+                    <th className="px-4 md:px-8 py-3 md:py-5 text-center">Account Type</th>
+                    <th className="px-4 md:px-8 py-3 md:py-5 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {!loading && users.map((user) => (
                     <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-8 py-6 text-slate-400 font-mono text-xs">#{user.id}</td>
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="h-11 w-11 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center font-black shadow-inner">
+                      <td className="px-4 md:px-8 py-4 md:py-6 text-slate-400 font-mono text-[10px] md:text-xs">#{user.id}</td>
+                      <td className="px-4 md:px-8 py-4 md:py-6">
+                        <div className="flex items-center gap-2 md:gap-4">
+                          <div className="h-8 w-8 md:h-11 md:w-11 rounded-lg md:rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center font-black shadow-inner text-sm md:text-base">
                             {user.full_name?.charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <p className="font-black text-slate-700 text-sm leading-none mb-1.5">{user.full_name}</p>
-                            <p className="text-xs text-slate-400 font-medium">{user.email}</p>
+                          <div className="min-w-0">
+                            <p className="font-black text-slate-700 text-xs md:text-sm leading-none mb-1 md:mb-1.5 truncate">{user.full_name}</p>
+                            <p className="text-[10px] md:text-xs text-slate-400 font-medium truncate">{user.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-center">
-                        <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase border ${
+                      <td className="px-4 md:px-8 py-4 md:py-6 text-center">
+                        <span className={`inline-flex items-center gap-1 md:gap-1.5 px-2 md:px-4 py-1 md:py-1.5 rounded-lg md:rounded-xl text-[8px] md:text-[10px] font-black uppercase border ${
                           user.role === 'admin' ? 'text-purple-600 bg-purple-50 border-purple-100' : 'text-blue-600 bg-blue-50 border-blue-100'
                         }`}>
-                          {user.role === 'admin' ? <ShieldCheck size={12}/> : <UserCircle size={12}/>}
+                          {user.role === 'admin' ? <ShieldCheck size={10} className="md:size-12"/> : <UserCircle size={10} className="md:size-12"/>}
                           {user.role}
                         </span>
                       </td>
-                      <td className="px-8 py-6">
-                        <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => openEditModal(user)} className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl border border-slate-100 bg-white shadow-sm transition-all">
-                            <Edit size={18} />
+                      <td className="px-4 md:px-8 py-4 md:py-6">
+                        <div className="flex justify-center gap-1 md:gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => openEditModal(user)} className="p-1.5 md:p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg md:rounded-xl border border-slate-100 bg-white shadow-sm transition-all">
+                            <Edit size={14} className="md:size-18" />
                           </button>
-                          <button onClick={() => setIsDeletingUser(user.id)} className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl border border-slate-100 bg-white shadow-sm transition-all">
-                            <Trash2 size={18} />
+                          <button onClick={() => setIsDeletingUser(user.id)} className="p-1.5 md:p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg md:rounded-xl border border-slate-100 bg-white shadow-sm transition-all">
+                            <Trash2 size={14} className="md:size-18" />
                           </button>
                         </div>
                       </td>
@@ -195,14 +196,14 @@ const Users = () => {
               </table>
               
               {loading && (
-                <div className="p-20 text-center flex flex-col items-center gap-3">
-                   <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                   <p className="font-bold text-slate-400 italic">Fetching user data...</p>
+                <div className="p-10 md:p-20 text-center flex flex-col items-center gap-3">
+                  <div className="w-6 h-6 md:w-8 md:h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="font-bold text-slate-400 italic text-xs md:text-sm">Fetching user data...</p>
                 </div>
               )}
               {!loading && users.length === 0 && (
-                <div className="p-20 text-center">
-                  <p className="font-bold text-slate-400">No users found in database.</p>
+                <div className="p-10 md:p-20 text-center">
+                  <p className="font-bold text-slate-400 text-xs md:text-sm">No users found in database.</p>
                 </div>
               )}
             </div>
@@ -210,41 +211,45 @@ const Users = () => {
         </main>
       </div>
 
-      <footer className="bg-[#1d3557] text-white py-6 text-center w-full">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
+      <footer className="bg-[#1d3557] text-white py-4 md:py-6 text-center w-full">
+        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
       </footer>
 
-      {/* --- MODALS --- */}
+      {/* --- MODALS - Responsive --- */}
+
+      {/* EDIT MODAL */}
       {editingUser && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="p-8 border-b flex justify-between items-center">
-              <h3 className="font-black text-2xl text-slate-800 tracking-tight">Edit User</h3>
-              <button onClick={() => setEditingUser(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={24}/></button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 md:p-4">
+          <div className="bg-white rounded-2xl md:rounded-[2.5rem] w-full max-w-[95%] md:max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="p-5 md:p-8 border-b flex justify-between items-center">
+              <h3 className="font-black text-xl md:text-2xl text-slate-800 tracking-tight">Edit User</h3>
+              <button onClick={() => setEditingUser(null)} className="p-1.5 md:p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <X size={18} className="md:size-24" />
+              </button>
             </div>
-            <form onSubmit={handleUpdate} className="p-8 space-y-5">
+            <form onSubmit={handleUpdate} className="p-5 md:p-8 space-y-4 md:space-y-5">
               <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 mb-2 block">Full Name</label>
+                <label className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 mb-1 md:mb-2 block">Full Name</label>
                 <input 
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
+                  className="w-full p-3 md:p-4 bg-slate-50 border border-slate-100 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none text-sm"
                   value={editFormData.full_name} 
                   onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
                   required
                 />
               </div>
               <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 mb-2 block">Email Address</label>
+                <label className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 mb-1 md:mb-2 block">Email Address</label>
                 <input 
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
+                  className="w-full p-3 md:p-4 bg-slate-50 border border-slate-100 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none text-sm"
                   value={editFormData.email} 
                   onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
                   required
                 />
               </div>
               <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 mb-2 block">Account Role</label>
+                <label className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1 mb-1 md:mb-2 block">Account Role</label>
                 <select 
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none appearance-none"
+                  className="w-full p-3 md:p-4 bg-slate-50 border border-slate-100 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none appearance-none text-sm"
                   value={editFormData.role}
                   onChange={(e) => setEditFormData({...editFormData, role: e.target.value})}
                 >
@@ -252,7 +257,7 @@ const Users = () => {
                   <option value="admin">Admin</option>
                 </select>
               </div>
-              <button type="submit" className="w-full py-4 bg-[#1d3557] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg hover:bg-blue-900 transition-all mt-4">
+              <button type="submit" className="w-full py-3 md:py-4 bg-[#1d3557] text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-lg hover:bg-blue-900 transition-all mt-2 md:mt-4">
                 Update Account
               </button>
             </form>
@@ -260,33 +265,35 @@ const Users = () => {
         </div>
       )}
 
+      {/* DELETE CONFIRMATION MODAL */}
       {isDeletingUser && (
-        <div className="fixed inset-0 bg-red-900/20 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="p-5 bg-red-50 rounded-3xl inline-block mb-6">
-              <AlertTriangle size={48} className="text-red-500" />
+        <div className="fixed inset-0 bg-red-900/20 backdrop-blur-sm z-[100] flex items-center justify-center p-3 md:p-4">
+          <div className="bg-white rounded-2xl md:rounded-[2.5rem] w-full max-w-[90%] md:max-w-sm p-6 md:p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="p-3 md:p-5 bg-red-50 rounded-2xl md:rounded-3xl inline-block mb-4 md:mb-6">
+              <AlertTriangle size={32} className="md:size-48 text-red-500" />
             </div>
-            <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">Delete User?</h3>
-            <p className="text-slate-400 font-medium mb-8 leading-relaxed">This action cannot be undone.</p>
-            <div className="flex gap-4">
-              <button onClick={() => setIsDeletingUser(null)} className="flex-1 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">Cancel</button>
-              <button onClick={confirmDelete} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Delete</button>
+            <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-2 tracking-tight">Delete User?</h3>
+            <p className="text-xs md:text-sm text-slate-400 font-medium mb-6 md:mb-8 leading-relaxed">This action cannot be undone.</p>
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+              <button onClick={() => setIsDeletingUser(null)} className="w-full md:flex-1 py-3 md:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl">Cancel</button>
+              <button onClick={confirmDelete} className="w-full md:flex-1 py-3 md:py-4 bg-red-500 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Delete</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* LOGOUT MODAL */}
       {showLogoutModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="p-5 bg-red-50 rounded-3xl inline-block mb-6">
-              <LogOut size={48} className="text-red-500" />
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 md:p-4">
+          <div className="bg-white rounded-2xl md:rounded-[2.5rem] w-full max-w-[90%] md:max-w-sm p-6 md:p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="p-3 md:p-5 bg-red-50 rounded-2xl md:rounded-3xl inline-block mb-4 md:mb-6">
+              <LogOut size={32} className="md:size-48 text-red-500" />
             </div>
-            <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">Confirm Logout?</h3>
-            <p className="text-slate-400 font-medium mb-8">Are you sure?</p>
-            <div className="flex gap-4">
-              <button onClick={cancelLogout} className="flex-1 py-4 font-black text-slate-400 uppercase tracking-widest text-[10px]">Back</button>
-              <button onClick={confirmLogout} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Logout</button>
+            <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-2 tracking-tight">Confirm Logout?</h3>
+            <p className="text-xs md:text-sm text-slate-400 font-medium mb-6 md:mb-8">Are you sure?</p>
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+              <button onClick={cancelLogout} className="w-full md:flex-1 py-3 md:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl">Back</button>
+              <button onClick={confirmLogout} className="w-full md:flex-1 py-3 md:py-4 bg-red-500 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Logout</button>
             </div>
           </div>
         </div>

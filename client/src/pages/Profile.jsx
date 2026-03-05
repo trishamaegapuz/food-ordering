@@ -9,7 +9,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default marker icons in Leaflet with Webpack
+// Marker fix (same as before)
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -17,7 +17,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
 
-// Custom icons
 const blueIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -84,7 +83,7 @@ const Profile = () => {
   const [gcashDetails, setGcashDetails] = useState({ mobile: '', name: '', reference: '' });
   const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvv: '', name: '' });
 
-  // Auto-hide notification
+  // Notification auto-hide
   useEffect(() => {
     if (notification.show) {
       const timer = setTimeout(() => setNotification({ ...notification, show: false }), 3000);
@@ -117,14 +116,12 @@ const Profile = () => {
     }
     fetchOrders(userData.id);
     
-    // Load cart from localStorage
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
   }, [navigate]);
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
@@ -272,7 +269,7 @@ const Profile = () => {
     }
   };
 
-  // Filter active/history
+  // Filter orders
   const activeOrders = orders.filter(o => 
     ['pending', 'confirmed', 'preparing', 'delivering'].includes(o.status)
   );
@@ -321,19 +318,105 @@ const Profile = () => {
         </div>
       )}
 
-      <style>{`@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
+      <style>{`
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive Design for Mobile */
+        @media (max-width: 768px) {
+          .profile-nav {
+            padding: 10px 4% !important;
+          }
+          .profile-nav .nav-links {
+            gap: 12px !important;
+          }
+          .profile-nav .profile-section div:last-child {
+            display: none !important; /* Hide "My Profile" text on mobile */
+          }
+          .profile-nav .track-order span {
+            display: none !important; /* Hide "Track Order" text, show icon only */
+          }
+          .profile-back-btn {
+            padding: 10px 4% !important;
+          }
+          .profile-main {
+            padding: 0 4% 20px !important;
+          }
+          .profile-card {
+            padding: 20px !important;
+          }
+          .profile-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 15px !important;
+          }
+          .profile-pic-container {
+            width: 80px !important;
+            height: 80px !important;
+          }
+          .profile-pic-label {
+            width: 28px !important;
+            height: 28px !important;
+          }
+          .profile-name {
+            font-size: 20px !important;
+          }
+          .profile-section-title {
+            font-size: 16px !important;
+          }
+          .profile-input {
+            padding: 10px 12px !important;
+            font-size: 14px !important;
+          }
+          .profile-button {
+            padding: 12px !important;
+            font-size: 14px !important;
+          }
+          /* Sidebars - full screen overlay on mobile */
+          .profile-cart-sidebar,
+          .profile-tracking-sidebar {
+            width: 100% !important;
+            height: 100% !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: auto !important;
+            border-left: none !important;
+            box-shadow: none !important;
+            z-index: 2000 !important;
+          }
+          .profile-cart-sidebar .sidebar-header,
+          .profile-tracking-sidebar .sidebar-header {
+            padding: 20px !important;
+          }
+          /* Modals - full width on mobile */
+          .modal-content {
+            width: 95% !important;
+            max-width: none !important;
+            margin: 10px !important;
+          }
+          .modal-buttons {
+            flex-direction: column !important;
+            gap: 10px !important;
+          }
+          .modal-buttons button {
+            width: 100% !important;
+          }
+        }
+      `}</style>
 
       <div style={styles.contentWrapper}>
         {/* Navigation */}
-        <nav style={styles.nav}>
+        <nav className="profile-nav" style={styles.nav}>
           <div style={{...styles.logoGroup, cursor: 'pointer'}} onClick={() => navigate('/menu')}>
             <span style={{ color: '#e63946', fontSize: '26px', fontWeight: '900' }}>Food</span>
             <span style={{ color: '#1d3557', fontSize: '26px', fontWeight: '900' }}>Ordering</span>
           </div>
 
-          <div style={styles.navLinks}>
+          <div className="nav-links" style={styles.navLinks}>
             {/* Profile Section */}
-            <div style={styles.profileSection} onClick={() => navigate('/profile')}>
+            <div className="profile-section" style={styles.profileSection} onClick={() => navigate('/profile')}>
               {profilePreview ? (
                 <img 
                   src={profilePreview} 
@@ -349,7 +432,7 @@ const Profile = () => {
               </div>
             </div>
             
-            <div style={styles.trackOrder} onClick={() => setShowTracking(!showTracking)}>
+            <div className="track-order" style={styles.trackOrder} onClick={() => setShowTracking(!showTracking)}>
               <MapPin size={18} color="#e63946" />
               <span>Track Order</span>
             </div>
@@ -366,7 +449,7 @@ const Profile = () => {
         </nav>
 
         {/* Back to Menu button */}
-        <div style={{ padding: '20px 5% 0' }}>
+        <div className="profile-back-btn" style={{ padding: '20px 5% 0' }}>
           <button 
             onClick={() => navigate('/menu')}
             style={{
@@ -387,10 +470,10 @@ const Profile = () => {
         </div>
 
         {/* Main Content - Profile Section */}
-        <div style={{ padding: '20px 5% 40px' }}>
+        <div className="profile-main" style={{ padding: '20px 5% 40px' }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             {/* Profile Header */}
-            <div style={{ 
+            <div className="profile-card" style={{ 
               backgroundColor: '#fff', 
               borderRadius: '20px', 
               padding: '30px',
@@ -402,9 +485,9 @@ const Profile = () => {
               </h1>
               
               {/* Profile Picture */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '25px', marginBottom: '30px' }}>
+              <div className="profile-header" style={{ display: 'flex', alignItems: 'center', gap: '25px', marginBottom: '30px' }}>
                 <div style={{ position: 'relative' }}>
-                  <div style={{
+                  <div className="profile-pic-container" style={{
                     width: '100px',
                     height: '100px',
                     borderRadius: '50%',
@@ -418,7 +501,7 @@ const Profile = () => {
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
-                  <label htmlFor="profile-pic" style={{
+                  <label htmlFor="profile-pic" className="profile-pic-label" style={{
                     position: 'absolute',
                     bottom: '0',
                     right: '0',
@@ -443,7 +526,7 @@ const Profile = () => {
                   </label>
                 </div>
                 <div>
-                  <h2 style={{ fontSize: '22px', fontWeight: '700', margin: '0 0 5px 0', color: '#333' }}>
+                  <h2 className="profile-name" style={{ fontSize: '22px', fontWeight: '700', margin: '0 0 5px 0', color: '#333' }}>
                     {user.full_name}
                   </h2>
                   <p style={{ fontSize: '14px', color: '#666', margin: 0, display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -454,7 +537,7 @@ const Profile = () => {
 
               {/* Edit Profile Form */}
               <form onSubmit={handleProfileUpdate}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1d3557', margin: '0 0 15px 0' }}>
+                <h3 className="profile-section-title" style={{ fontSize: '18px', fontWeight: '700', color: '#1d3557', margin: '0 0 15px 0' }}>
                   Edit Profile Information
                 </h3>
                 
@@ -467,6 +550,7 @@ const Profile = () => {
                       type="text" 
                       value={profileForm.full_name}
                       onChange={(e) => setProfileForm({...profileForm, full_name: e.target.value})}
+                      className="profile-input"
                       style={{
                         width: '100%',
                         padding: '12px 15px',
@@ -489,6 +573,7 @@ const Profile = () => {
                       type="text" 
                       value={profileForm.contact}
                       onChange={(e) => setProfileForm({...profileForm, contact: e.target.value})}
+                      className="profile-input"
                       style={{
                         width: '100%',
                         padding: '12px 15px',
@@ -511,6 +596,7 @@ const Profile = () => {
                       value={profileForm.address}
                       onChange={(e) => setProfileForm({...profileForm, address: e.target.value})}
                       rows="3"
+                      className="profile-input"
                       style={{
                         width: '100%',
                         padding: '12px 15px',
@@ -529,6 +615,7 @@ const Profile = () => {
                   <button 
                     type="submit" 
                     disabled={isSubmitting}
+                    className="profile-button"
                     style={{
                       backgroundColor: '#e63946',
                       color: '#fff',
@@ -556,14 +643,14 @@ const Profile = () => {
             </div>
 
             {/* Change Password Section */}
-            <div style={{ 
+            <div className="profile-card" style={{ 
               backgroundColor: '#fff', 
               borderRadius: '20px', 
               padding: '30px',
               boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
               marginBottom: '25px'
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1d3557', margin: '0 0 15px 0' }}>
+              <h3 className="profile-section-title" style={{ fontSize: '18px', fontWeight: '700', color: '#1d3557', margin: '0 0 15px 0' }}>
                 Change Password
               </h3>
               
@@ -576,6 +663,7 @@ const Profile = () => {
                     type="password" 
                     value={passwordForm.current}
                     onChange={(e) => setPasswordForm({...passwordForm, current: e.target.value})}
+                    className="profile-input"
                     style={{
                       width: '100%',
                       padding: '12px 15px',
@@ -598,6 +686,7 @@ const Profile = () => {
                     type="password" 
                     value={passwordForm.new}
                     onChange={(e) => setPasswordForm({...passwordForm, new: e.target.value})}
+                    className="profile-input"
                     style={{
                       width: '100%',
                       padding: '12px 15px',
@@ -620,6 +709,7 @@ const Profile = () => {
                     type="password" 
                     value={passwordForm.confirm}
                     onChange={(e) => setPasswordForm({...passwordForm, confirm: e.target.value})}
+                    className="profile-input"
                     style={{
                       width: '100%',
                       padding: '12px 15px',
@@ -637,6 +727,7 @@ const Profile = () => {
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
+                  className="profile-button"
                   style={{
                     backgroundColor: '#1d3557',
                     color: '#fff',
@@ -663,14 +754,14 @@ const Profile = () => {
             </div>
 
             {/* Delete Account Section */}
-            <div style={{ 
+            <div className="profile-card" style={{ 
               backgroundColor: '#fff', 
               borderRadius: '20px', 
               padding: '30px',
               boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
               border: '1px solid #fee2e2'
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#ef4444', margin: '0 0 15px 0' }}>
+              <h3 className="profile-section-title" style={{ fontSize: '18px', fontWeight: '700', color: '#ef4444', margin: '0 0 15px 0' }}>
                 Delete Account
               </h3>
               
@@ -687,6 +778,7 @@ const Profile = () => {
                     type="password" 
                     value={deletePassword}
                     onChange={(e) => setDeletePassword(e.target.value)}
+                    className="profile-input"
                     style={{
                       width: '100%',
                       padding: '12px 15px',
@@ -704,6 +796,7 @@ const Profile = () => {
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
+                  className="profile-button"
                   style={{
                     backgroundColor: '#ef4444',
                     color: '#fff',
@@ -735,7 +828,7 @@ const Profile = () => {
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div style={styles.modalOverlay}>
-          <div style={{...styles.modalContent, maxWidth: '400px'}}>
+          <div className="modal-content" style={{...styles.modalContent, maxWidth: '400px'}}>
             <div style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Confirm Logout</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={cancelLogout} />
@@ -744,7 +837,7 @@ const Profile = () => {
               <p style={{fontSize: '16px', color: '#333', marginBottom: '25px'}}>
                 Are you sure you want to logout?
               </p>
-              <div style={{display: 'flex', gap: '15px'}}>
+              <div className="modal-buttons" style={{display: 'flex', gap: '15px'}}>
                 <button onClick={cancelLogout} style={{...styles.cancelBtn, flex: 1, padding: '12px'}}>Cancel</button>
                 <button onClick={confirmLogout} style={{...styles.confirmOrderBtn, flex: 1, padding: '12px'}}>Logout</button>
               </div>
@@ -756,7 +849,7 @@ const Profile = () => {
       {/* Map Modal */}
       {showMapModal && selectedOrderForMap && (
         <div style={styles.modalOverlay}>
-          <div style={{...styles.modalContent, maxWidth: '800px', width: '90%'}}>
+          <div className="modal-content" style={{...styles.modalContent, maxWidth: '800px', width: '90%'}}>
             <div style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Order #{selectedOrderForMap.id} Tracking</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowMapModal(false)} />
@@ -815,7 +908,7 @@ const Profile = () => {
 
       {/* Cart Sidebar */}
       {showCart && (
-        <div style={{...styles.sidebar, width: '380px'}}>
+        <div className="profile-cart-sidebar" style={{...styles.sidebar, width: '380px'}}>
           <div style={styles.sidebarHeader}>
             <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
               <ShoppingCart size={20} color="#e63946" />
@@ -865,7 +958,7 @@ const Profile = () => {
 
       {/* Tracking Sidebar */}
       {showTracking && (
-        <div style={{...styles.sidebar, width: '380px'}}>
+        <div className="profile-tracking-sidebar" style={{...styles.sidebar, width: '380px'}}>
           <div style={styles.sidebarHeader}>
             <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
               <Truck size={20} color="#e63946" />
@@ -874,7 +967,6 @@ const Profile = () => {
             <X size={20} style={{cursor: 'pointer'}} onClick={() => setShowTracking(false)} />
           </div>
 
-          {/* Tab Buttons */}
           <div style={{ display: 'flex', borderBottom: '1px solid #eee', marginBottom: '15px' }}>
             <button
               style={{
@@ -943,7 +1035,6 @@ const Profile = () => {
                       📍 {order.delivery_address}
                     </div>
                   )}
-                  {/* Progress bar for active orders */}
                   {trackingTab === 'active' && (
                     <div style={{marginBottom: '12px'}}>
                       <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#999', marginBottom: '4px'}}>
@@ -957,7 +1048,6 @@ const Profile = () => {
                       </div>
                     </div>
                   )}
-                  {/* View on Map button for active undelivered orders */}
                   {trackingTab === 'active' && order.latitude && order.longitude && order.status !== 'delivered' && (
                     <button 
                       onClick={() => showOrderOnMap(order)}
