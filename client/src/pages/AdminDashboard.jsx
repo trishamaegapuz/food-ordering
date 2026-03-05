@@ -26,6 +26,7 @@ ChartJS.register(
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [stats, setStats] = useState({ 
     total_sales: 0, 
     total_orders: 0, 
@@ -39,6 +40,25 @@ const AdminDashboard = () => {
   const [viewType, setViewType] = useState('weekly');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Fetch user data on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    
+    if (!token || !savedUser) {
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+    } catch (err) {
+      console.error("Error parsing user data:", err);
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const fetchAdminData = async () => {
     const token = localStorage.getItem('token');
@@ -62,8 +82,10 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    fetchAdminData();
-  }, [viewType]);
+    if (user) { // Only fetch if user is loaded
+      fetchAdminData();
+    }
+  }, [viewType, user]);
 
   const handleLogoutClick = () => setShowLogoutModal(true);
   const cancelLogout = () => setShowLogoutModal(false);
@@ -84,6 +106,16 @@ const AdminDashboard = () => {
       pointRadius: 4,
       pointBackgroundColor: '#e63946',
     }]
+  };
+
+  // Format date to full format: "Thursday, March 5, 2026"
+  const formatFullDate = () => {
+    return new Date().toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   };
 
   return (
@@ -219,10 +251,12 @@ const AdminDashboard = () => {
           </button>
           <div className="flex-1">
             <p className="text-sm text-slate-400">Welcome back,</p>
-            <p className="font-black text-slate-800">Admin</p>
+            <p className="font-black text-slate-800">
+              {user?.full_name || 'Admin'}
+            </p>
           </div>
           <div className="text-right text-xs md:text-sm text-slate-400 font-bold bg-slate-50 px-4 py-2 rounded-xl whitespace-nowrap">
-            {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            {formatFullDate()}
           </div>
         </div>
 
