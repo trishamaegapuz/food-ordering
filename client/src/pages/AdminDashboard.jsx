@@ -82,7 +82,7 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    if (user) { // Only fetch if user is loaded
+    if (user) {
       fetchAdminData();
     }
   }, [viewType, user]);
@@ -108,7 +108,6 @@ const AdminDashboard = () => {
     }]
   };
 
-  // Format date to full format: "Thursday, March 5, 2026"
   const formatFullDate = () => {
     return new Date().toLocaleDateString('en-US', { 
       weekday: 'long', 
@@ -116,6 +115,12 @@ const AdminDashboard = () => {
       month: 'long', 
       day: 'numeric' 
     });
+  };
+
+  // Navigation helper para sa sidebar
+  const navigateTo = (path) => {
+    navigate(path);
+    setSidebarOpen(false);
   };
 
   return (
@@ -148,9 +153,12 @@ const AdminDashboard = () => {
         lg:translate-x-0 transition-transform duration-300 ease-in-out
         w-64 bg-[#1d3557] text-white flex flex-col
       `}>
-        {/* Sidebar Header */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>
+        {/* Sidebar Header - Fully clickable */}
+        <div 
+          onClick={() => navigateTo('/admin-dashboard')}
+          className="p-6 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
+        >
+          <div className="flex items-center gap-2">
             <span className="text-[#e63946] text-xl font-black">Food</span>
             <span className="text-white text-xl font-black">Ordering</span>
           </div>
@@ -160,46 +168,40 @@ const AdminDashboard = () => {
         {/* Sidebar Navigation */}
         <nav className="flex-1 overflow-y-auto py-6">
           <div className="space-y-1 px-4">
+            {/* Dashboard Link */}
             <SidebarLink 
               icon={<Home size={18} />} 
               label="Dashboard" 
               active={true}
-              onClick={() => {
-                navigate('/admin-dashboard');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin-dashboard')}
             />
+            
+            {/* Users Link */}
             <SidebarLink 
               icon={<Users size={18} />} 
               label="Users" 
-              onClick={() => {
-                navigate('/admin/users');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/users')}
             />
+            
+            {/* Menu Link */}
             <SidebarLink 
               icon={<ShoppingBag size={18} />} 
               label="Menu" 
-              onClick={() => {
-                navigate('/admin/menu');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/menu')}
             />
+            
+            {/* Orders Link */}
             <SidebarLink 
               icon={<ClipboardList size={18} />} 
               label="Orders" 
-              onClick={() => {
-                navigate('/admin/orders');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/orders')}
             />
+            
+            {/* Sales Link */}
             <SidebarLink 
               icon={<BarChart3 size={18} />} 
               label="Sales" 
-              onClick={() => {
-                navigate('/admin/sales');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/sales')}
             />
           </div>
 
@@ -207,21 +209,18 @@ const AdminDashboard = () => {
           <div className="mt-8 px-4">
             <p className="text-xs text-white/40 uppercase tracking-wider font-bold mb-3 px-2">Quick Actions</p>
             <div className="space-y-1">
+              {/* Add Product Link */}
               <SidebarLink 
                 icon={<Plus size={18} />} 
                 label="Add Product" 
-                onClick={() => {
-                  navigate('/admin/menu/add');
-                  setSidebarOpen(false);
-                }}
+                onClick={() => navigateTo('/admin/menu/add')}
               />
+              
+              {/* New User Link */}
               <SidebarLink 
                 icon={<UserPlus size={18} />} 
                 label="New User" 
-                onClick={() => {
-                  navigate('/admin/users/add');
-                  setSidebarOpen(false);
-                }}
+                onClick={() => navigateTo('/admin/users/add')}
               />
             </div>
           </div>
@@ -231,7 +230,7 @@ const AdminDashboard = () => {
         <div className="p-4 border-t border-white/10">
           <button 
             onClick={handleLogoutClick}
-            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white cursor-pointer"
           >
             <LogOut size={18} />
             <span className="text-sm font-medium">Logout</span>
@@ -245,7 +244,7 @@ const AdminDashboard = () => {
         <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-4 sticky top-0 z-30 shadow-sm">
           <button 
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             <Menu size={24} className="text-slate-600" />
           </button>
@@ -293,13 +292,17 @@ const AdminDashboard = () => {
                     <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
                       <button 
                         onClick={() => setViewType('weekly')}
-                        className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-black uppercase transition-all ${viewType === 'weekly' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-black uppercase transition-all cursor-pointer ${
+                          viewType === 'weekly' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                        }`}
                       >
                         Weekly
                       </button>
                       <button 
                         onClick={() => setViewType('monthly')}
-                        className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-black uppercase transition-all ${viewType === 'monthly' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-black uppercase transition-all cursor-pointer ${
+                          viewType === 'monthly' ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                        }`}
                       >
                         Monthly
                       </button>
@@ -333,7 +336,7 @@ const AdminDashboard = () => {
                     </h3>
                     <div className="overflow-y-auto space-y-3 md:space-y-4 pr-2 flex-grow scrollbar-hide">
                       {stats.recentOrders?.length > 0 ? stats.recentOrders.map((order, idx) => (
-                        <div key={idx} className="flex items-center gap-3 md:gap-4 p-2 md:p-3 rounded-xl md:rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                        <div key={idx} className="flex items-center gap-3 md:gap-4 p-2 md:p-3 rounded-xl md:rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 cursor-pointer">
                           <div className="bg-yellow-50 p-2 md:p-3 rounded-lg md:rounded-xl text-yellow-600">
                             <Clock size={16} className="md:size-20" />
                           </div>
@@ -379,8 +382,8 @@ const AdminDashboard = () => {
             <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-2 tracking-tight">Confirm Logout?</h3>
             <p className="text-xs md:text-sm text-slate-400 font-medium mb-6 md:mb-8">Are you sure you want to end your session?</p>
             <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-              <button onClick={cancelLogout} className="w-full md:flex-1 py-3 md:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl">Back</button>
-              <button onClick={confirmLogout} className="w-full md:flex-1 py-3 md:py-4 bg-red-500 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200">Logout</button>
+              <button onClick={cancelLogout} className="w-full md:flex-1 py-3 md:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl cursor-pointer">Back</button>
+              <button onClick={confirmLogout} className="w-full md:flex-1 py-3 md:py-4 bg-red-500 text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200 cursor-pointer">Logout</button>
             </div>
           </div>
         </div>
@@ -389,17 +392,17 @@ const AdminDashboard = () => {
   );
 };
 
-// Sidebar Link Component
+// Sidebar Link Component - Fully clickable
 const SidebarLink = ({ icon, label, active = false, onClick }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
       active 
         ? 'bg-white/10 text-white' 
         : 'text-white/60 hover:bg-white/10 hover:text-white'
     }`}
   >
-    {icon}
+    <span className="flex items-center justify-center">{icon}</span>
     <span className="text-sm font-medium">{label}</span>
   </button>
 );

@@ -126,11 +126,17 @@ const AddEditProduct = () => {
     });
   };
 
+  // Navigation helper para sa sidebar
+  const navigateTo = (path) => {
+    navigate(path);
+    setSidebarOpen(false);
+  };
+
   // Sidebar Link Component
   const SidebarLink = ({ icon, label, active = false, onClick }) => (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
         active 
           ? 'bg-white/10 text-white' 
           : 'text-white/60 hover:bg-white/10 hover:text-white'
@@ -159,7 +165,7 @@ const AddEditProduct = () => {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden cursor-pointer"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -171,9 +177,12 @@ const AddEditProduct = () => {
         lg:translate-x-0 transition-transform duration-300 ease-in-out
         w-64 bg-[#1d3557] text-white flex flex-col
       `}>
-        {/* Sidebar Header */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>
+        {/* Sidebar Header - Fully clickable */}
+        <div 
+          onClick={() => navigateTo('/admin-dashboard')}
+          className="p-6 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
+        >
+          <div className="flex items-center gap-2">
             <span className="text-[#e63946] text-xl font-black">Food</span>
             <span className="text-white text-xl font-black">Ordering</span>
           </div>
@@ -186,43 +195,28 @@ const AddEditProduct = () => {
             <SidebarLink 
               icon={<Home size={18} />} 
               label="Dashboard" 
-              onClick={() => {
-                navigate('/admin-dashboard');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin-dashboard')}
             />
             <SidebarLink 
               icon={<Users size={18} />} 
               label="Users" 
-              onClick={() => {
-                navigate('/admin/users');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/users')}
             />
             <SidebarLink 
               icon={<ShoppingBag size={18} />} 
               label="Menu" 
               active={true}
-              onClick={() => {
-                navigate('/admin/menu');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/menu')}
             />
             <SidebarLink 
               icon={<ClipboardList size={18} />} 
               label="Orders" 
-              onClick={() => {
-                navigate('/admin/orders');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/orders')}
             />
             <SidebarLink 
               icon={<BarChart3 size={18} />} 
               label="Sales" 
-              onClick={() => {
-                navigate('/admin/sales');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/sales')}
             />
           </div>
 
@@ -233,19 +227,13 @@ const AddEditProduct = () => {
               <SidebarLink 
                 icon={<Plus size={18} />} 
                 label="Add Product" 
-                active={!isEdit && window.location.pathname.includes('/add')} // Highlight if on add page
-                onClick={() => {
-                  navigate('/admin/menu/add');
-                  setSidebarOpen(false);
-                }}
+                active={!isEdit && window.location.pathname.includes('/add')}
+                onClick={() => navigateTo('/admin/menu/add')}
               />
               <SidebarLink 
                 icon={<UserPlus size={18} />} 
                 label="New User" 
-                onClick={() => {
-                  navigate('/admin/users/add');
-                  setSidebarOpen(false);
-                }}
+                onClick={() => navigateTo('/admin/users/add')}
               />
             </div>
           </div>
@@ -255,7 +243,7 @@ const AddEditProduct = () => {
         <div className="p-4 border-t border-white/10">
           <button 
             onClick={() => setShowLogoutModal(true)}
-            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white cursor-pointer"
           >
             <LogOut size={18} />
             <span className="text-sm font-medium">Logout</span>
@@ -269,7 +257,7 @@ const AddEditProduct = () => {
         <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-4 sticky top-0 z-30 shadow-sm">
           <button 
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             <Menu size={24} className="text-slate-600" />
           </button>
@@ -286,7 +274,7 @@ const AddEditProduct = () => {
 
         {/* MAIN CONTENT */}
         <main className="p-4 md:p-8 max-w-4xl mx-auto w-full">
-          <button onClick={() => navigate('/admin/menu')} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 sm:mb-8 font-bold group transition-all">
+          <button onClick={() => navigate('/admin/menu')} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 sm:mb-8 font-bold group transition-all cursor-pointer">
             <div className="p-1.5 sm:p-2 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-all">
               <ArrowLeft size={16} className="sm:size-18" />
             </div>
@@ -320,7 +308,7 @@ const AddEditProduct = () => {
                     <div>
                       <label className="text-[10px] sm:text-xs font-black uppercase text-slate-400 ml-1">Category</label>
                       <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}
-                        className="w-full p-3 sm:p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-xl sm:rounded-2xl outline-none transition-all font-bold text-sm sm:text-base appearance-none"
+                        className="w-full p-3 sm:p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-xl sm:rounded-2xl outline-none transition-all font-bold text-sm sm:text-base appearance-none cursor-pointer"
                       >
                         {['Appetizers', 'Main Courses', 'Desserts', 'Beverages'].map(cat => <option key={cat}>{cat}</option>)}
                       </select>
@@ -341,7 +329,7 @@ const AddEditProduct = () => {
                 )}
 
                 <button type="submit" disabled={isSubmitting}
-                  className="w-full py-4 sm:py-5 bg-[#1d3557] text-white rounded-xl sm:rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl shadow-blue-900/20 hover:bg-[#2a4a75] hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 text-sm sm:text-base"
+                  className="w-full py-4 sm:py-5 bg-[#1d3557] text-white rounded-xl sm:rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl shadow-blue-900/20 hover:bg-[#2a4a75] hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 text-sm sm:text-base cursor-pointer disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? <div className="w-5 h-5 sm:w-6 sm:h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div> : <><Save size={18} className="sm:size-20" /> {isEdit ? 'Save Changes' : 'Publish Dish'}</>}
                 </button>
@@ -396,7 +384,7 @@ const AddEditProduct = () => {
             
             <button 
               onClick={() => navigate('/admin/menu')}
-              className="group w-full py-4 sm:py-5 bg-[#1d3557] text-white rounded-xl sm:rounded-[1.5rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-xl shadow-blue-900/20 hover:bg-blue-600 transition-all"
+              className="group w-full py-4 sm:py-5 bg-[#1d3557] text-white rounded-xl sm:rounded-[1.5rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-xl shadow-blue-900/20 hover:bg-blue-600 transition-all cursor-pointer"
             >
               Back to Menu <ChevronRight size={16} className="sm:size-18 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -415,8 +403,8 @@ const AddEditProduct = () => {
             <h3 className="text-xl sm:text-2xl font-black text-slate-800 mb-2">Logout?</h3>
             <p className="text-xs sm:text-sm text-slate-400 font-medium mb-6 sm:mb-8">Ready to leave the kitchen?</p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <button onClick={cancelLogout} className="w-full sm:flex-1 py-3 sm:py-4 font-black text-slate-400 uppercase text-[10px] border border-slate-200 rounded-xl sm:rounded-2xl">Wait, no</button>
-              <button onClick={confirmLogout} className="w-full sm:flex-1 py-3 sm:py-4 bg-red-500 text-white rounded-xl sm:rounded-2xl font-black uppercase text-[10px] shadow-lg shadow-red-200 hover:bg-red-600 transition-all">Yes, Logout</button>
+              <button onClick={cancelLogout} className="w-full sm:flex-1 py-3 sm:py-4 font-black text-slate-400 uppercase text-[10px] border border-slate-200 rounded-xl sm:rounded-2xl cursor-pointer">Wait, no</button>
+              <button onClick={confirmLogout} className="w-full sm:flex-1 py-3 sm:py-4 bg-red-500 text-white rounded-xl sm:rounded-2xl font-black uppercase text-[10px] shadow-lg shadow-red-200 hover:bg-red-600 transition-all cursor-pointer">Yes, Logout</button>
             </div>
           </div>
         </div>

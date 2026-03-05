@@ -130,11 +130,17 @@ const AdminSales = () => {
     });
   };
 
+  // Navigation helper para sa sidebar
+  const navigateTo = (path) => {
+    navigate(path);
+    setSidebarOpen(false);
+  };
+
   // Sidebar Link Component
   const SidebarLink = ({ icon, label, active = false, onClick }) => (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer ${
         active 
           ? 'bg-white/10 text-white' 
           : 'text-white/60 hover:bg-white/10 hover:text-white'
@@ -163,7 +169,7 @@ const AdminSales = () => {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden cursor-pointer"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -175,9 +181,12 @@ const AdminSales = () => {
         lg:translate-x-0 transition-transform duration-300 ease-in-out
         w-64 bg-[#1d3557] text-white flex flex-col
       `}>
-        {/* Sidebar Header */}
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>
+        {/* Sidebar Header - Fully clickable */}
+        <div 
+          onClick={() => navigateTo('/admin-dashboard')}
+          className="p-6 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
+        >
+          <div className="flex items-center gap-2">
             <span className="text-[#e63946] text-xl font-black">Food</span>
             <span className="text-white text-xl font-black">Ordering</span>
           </div>
@@ -190,43 +199,28 @@ const AdminSales = () => {
             <SidebarLink 
               icon={<Home size={18} />} 
               label="Dashboard" 
-              onClick={() => {
-                navigate('/admin-dashboard');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin-dashboard')}
             />
             <SidebarLink 
               icon={<Users size={18} />} 
               label="Users" 
-              onClick={() => {
-                navigate('/admin/users');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/users')}
             />
             <SidebarLink 
               icon={<ShoppingBag size={18} />} 
               label="Menu" 
-              onClick={() => {
-                navigate('/admin/menu');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/menu')}
             />
             <SidebarLink 
               icon={<ClipboardList size={18} />} 
               label="Orders" 
-              onClick={() => {
-                navigate('/admin/orders');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/orders')}
             />
             <SidebarLink 
               icon={<BarChart3 size={18} />} 
               label="Sales" 
               active={true}
-              onClick={() => {
-                navigate('/admin/sales');
-                setSidebarOpen(false);
-              }}
+              onClick={() => navigateTo('/admin/sales')}
             />
           </div>
 
@@ -237,18 +231,12 @@ const AdminSales = () => {
               <SidebarLink 
                 icon={<Plus size={18} />} 
                 label="Add Product" 
-                onClick={() => {
-                  navigate('/admin/menu/add');
-                  setSidebarOpen(false);
-                }}
+                onClick={() => navigateTo('/admin/menu/add')}
               />
               <SidebarLink 
                 icon={<UserPlus size={18} />} 
                 label="New User" 
-                onClick={() => {
-                  navigate('/admin/users/add');
-                  setSidebarOpen(false);
-                }}
+                onClick={() => navigateTo('/admin/users/add')}
               />
             </div>
           </div>
@@ -258,7 +246,7 @@ const AdminSales = () => {
         <div className="p-4 border-t border-white/10">
           <button 
             onClick={() => setShowLogoutModal(true)}
-            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white cursor-pointer"
           >
             <LogOut size={18} />
             <span className="text-sm font-medium">Logout</span>
@@ -272,7 +260,7 @@ const AdminSales = () => {
         <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-4 sticky top-0 z-30 shadow-sm">
           <button 
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             <Menu size={24} className="text-slate-600" />
           </button>
@@ -297,7 +285,7 @@ const AdminSales = () => {
             </div>
             <button 
               onClick={handleExport} 
-              className="w-full sm:w-auto bg-white border border-slate-200 px-4 sm:px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+              className="w-full sm:w-auto bg-white border border-slate-200 px-4 sm:px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95 shadow-sm cursor-pointer"
             >
               <Download size={16} /> Export CSV Report
             </button>
@@ -344,7 +332,7 @@ const AdminSales = () => {
                                 <p className="font-black text-blue-600 mb-1">₱{Number(order.total).toLocaleString()}</p>
                                 <button 
                                   onClick={() => setDeleteModal({ show: true, orderId: order.id })} 
-                                  className="text-slate-300 hover:text-red-500 transition-colors p-1"
+                                  className="text-slate-300 hover:text-red-500 transition-colors p-1 cursor-pointer"
                                 >
                                   <Trash2 size={14} />
                                 </button>
@@ -379,13 +367,13 @@ const AdminSales = () => {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button 
                 onClick={() => setDeleteModal({ show: false, orderId: null })} 
-                className="w-full sm:flex-1 py-3 sm:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl sm:rounded-2xl"
+                className="w-full sm:flex-1 py-3 sm:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl sm:rounded-2xl cursor-pointer"
               >
                 Back
               </button>
               <button 
                 onClick={confirmDelete} 
-                className="w-full sm:flex-1 py-3 sm:py-4 bg-red-500 text-white rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200"
+                className="w-full sm:flex-1 py-3 sm:py-4 bg-red-500 text-white rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200 cursor-pointer"
               >
                 Delete
               </button>
@@ -406,13 +394,13 @@ const AdminSales = () => {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button 
                 onClick={() => setShowLogoutModal(false)} 
-                className="w-full sm:flex-1 py-3 sm:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl sm:rounded-2xl"
+                className="w-full sm:flex-1 py-3 sm:py-4 font-black text-slate-400 uppercase tracking-widest text-[10px] border border-slate-200 rounded-xl sm:rounded-2xl cursor-pointer"
               >
                 Back
               </button>
               <button 
                 onClick={confirmLogout} 
-                className="w-full sm:flex-1 py-3 sm:py-4 bg-red-500 text-white rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200"
+                className="w-full sm:flex-1 py-3 sm:py-4 bg-red-500 text-white rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-200 cursor-pointer"
               >
                 Logout
               </button>
