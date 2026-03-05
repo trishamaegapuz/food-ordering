@@ -81,20 +81,45 @@ const AdminSales = () => {
     setShowLogoutModal(false);
   };
 
+  // --- UPDATED EXPORT CSV LOGIC ---
   const handleExport = () => {
-    if (!data.recentOrders || data.recentOrders.length === 0) return;
-    const headers = ["Order ID", "Customer Name", "Total Amount", "Status", "Date"];
-    const rows = data.recentOrders.map(order => [
-      order.id, order.full_name, order.total, order.status, 
-      new Date(order.created_at).toLocaleString()
-    ]);
-    const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n");
+    if (!data.recentOrders || data.recentOrders.length === 0) {
+      alert("Walang data na pwedeng i-export.");
+      return;
+    }
+
+    // Headers ng CSV
+    const headers = ["Order ID", "Customer Name", "Total Amount (PHP)", "Status", "Date", "Time"];
+
+    // Pag-convert ng data rows (nilagyan ng quotes para sa mga pangalan na may comma)
+    const rows = data.recentOrders.map(order => {
+      const dateObj = new Date(order.created_at);
+      return [
+        `#${order.id}`,
+        `"${order.full_name}"`, // Nilagyan ng quotes para safe sa Excel
+        order.total,
+        order.status,
+        dateObj.toLocaleDateString(),
+        dateObj.toLocaleTimeString()
+      ];
+    });
+
+    // Pagsasama ng headers at rows
+    const csvContent = [
+      headers.join(","), 
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    // Pag-create ng file download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
+    
     link.setAttribute("href", url);
     link.setAttribute("download", `Sales_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link); // Required para sa ilang browsers
     link.click();
+    document.body.removeChild(link); // Linis pagkatapos i-download
   };
 
   const confirmDelete = async () => {
