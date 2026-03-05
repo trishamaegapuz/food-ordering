@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { 
   Save, ArrowLeft, Image as ImageIcon, 
-  Upload, LogOut, CheckCircle, AlertCircle, X, ChevronRight 
+  Upload, LogOut, CheckCircle, AlertCircle, X, ChevronRight,
+  Menu, Home, Users, ShoppingBag, ClipboardList, BarChart3, Plus, UserPlus
 } from 'lucide-react';
 
 const AddEditProduct = () => {
@@ -12,6 +13,7 @@ const AddEditProduct = () => {
   const fileInputRef = useRef(null);
   const isEdit = !!id;
 
+  const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -24,23 +26,29 @@ const AddEditProduct = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogoutClick = () => setShowLogoutModal(true);
-  const cancelLogout = () => setShowLogoutModal(false);
-  const confirmLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
-
+  // Fetch user data on mount
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) {
+    const savedUser = localStorage.getItem('user');
+    
+    if (!token || !savedUser) {
       navigate('/login');
       return;
     }
+    
+    try {
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+    } catch (err) {
+      console.error("Error parsing user data:", err);
+      navigate('/login');
+    }
+  }, [navigate]);
 
-    if (isEdit) {
+  useEffect(() => {
+    if (isEdit && user) {
       axios.get(`https://food-ordering-wq61.onrender.com/api/products`)
         .then(res => {
           const products = Array.isArray(res.data) ? res.data : [];
@@ -57,7 +65,7 @@ const AddEditProduct = () => {
         })
         .catch(err => console.error("Error fetching product:", err));
     }
-  }, [id, isEdit, navigate]);
+  }, [id, isEdit, user, navigate]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -100,34 +108,184 @@ const AddEditProduct = () => {
     }
   };
 
+  // Logout handlers
+  const cancelLogout = () => setShowLogoutModal(false);
+  const confirmLogout = () => {
+    localStorage.clear();
+    navigate('/login');
+    setShowLogoutModal(false);
+  };
+
+  // Format date to full format: "Thursday, March 5, 2026"
+  const formatFullDate = () => {
+    return new Date().toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  // Sidebar Link Component
+  const SidebarLink = ({ icon, label, active = false, onClick }) => (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+        active 
+          ? 'bg-white/10 text-white' 
+          : 'text-white/60 hover:bg-white/10 hover:text-white'
+      }`}
+    >
+      {icon}
+      <span className="text-sm font-medium">{label}</span>
+    </button>
+  );
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FC] font-sans text-slate-600">
-      
-      <div className="flex-grow">
-        {/* --- NAVBAR - Responsive --- */}
-        <nav className="bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 sm:px-8 py-3 sm:py-4 flex justify-between items-center sticky top-0 z-50">
-          <div className="flex items-center gap-2 cursor-pointer flex-shrink-0" onClick={() => navigate('/admin-dashboard')}>
-            <span className="text-[#e63946] text-xl sm:text-2xl font-black italic">FAST</span>
-            <span className="text-[#1d3557] text-xl sm:text-2xl font-black">FOOD</span>
+    <div className="min-h-screen flex bg-[#F8F9FC] font-sans text-slate-600">
+      {/* Global styles */}
+      <style>{`
+        html, body {
+          overflow-x: hidden !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        * {
+          box-sizing: border-box;
+        }
+      `}</style>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50
+        transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+        lg:translate-x-0 transition-transform duration-300 ease-in-out
+        w-64 bg-[#1d3557] text-white flex flex-col
+      `}>
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>
+            <span className="text-[#e63946] text-xl font-black">Food</span>
+            <span className="text-white text-xl font-black">Ordering</span>
           </div>
-          {/* Scrollable nav links on mobile */}
-          <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm font-bold overflow-x-auto pb-1 flex-nowrap ml-4 hide-scrollbar">
-            {['Dashboard', 'Users', 'Menu', 'Orders', 'Sales'].map((item) => (
-              <button 
-                key={item}
-                onClick={() => navigate(`/admin/${item.toLowerCase()}`)}
-                className={`${item === 'Menu' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'} hover:text-blue-500 transition-all pb-1 whitespace-nowrap`}
-              >
-                {item}
-              </button>
-            ))}
-            <button onClick={handleLogoutClick} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-all flex-shrink-0">
-              <LogOut size={18} />
-            </button>
+          <p className="text-xs text-white/50 mt-2 font-medium">Admin Dashboard</p>
+        </div>
+
+        {/* Sidebar Navigation */}
+        <nav className="flex-1 overflow-y-auto py-6">
+          <div className="space-y-1 px-4">
+            <SidebarLink 
+              icon={<Home size={18} />} 
+              label="Dashboard" 
+              onClick={() => {
+                navigate('/admin-dashboard');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<Users size={18} />} 
+              label="Users" 
+              onClick={() => {
+                navigate('/admin/users');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<ShoppingBag size={18} />} 
+              label="Menu" 
+              active={true}
+              onClick={() => {
+                navigate('/admin/menu');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<ClipboardList size={18} />} 
+              label="Orders" 
+              onClick={() => {
+                navigate('/admin/orders');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<BarChart3 size={18} />} 
+              label="Sales" 
+              onClick={() => {
+                navigate('/admin/sales');
+                setSidebarOpen(false);
+              }}
+            />
+          </div>
+
+          {/* Quick Actions Section */}
+          <div className="mt-8 px-4">
+            <p className="text-xs text-white/40 uppercase tracking-wider font-bold mb-3 px-2">Quick Actions</p>
+            <div className="space-y-1">
+              <SidebarLink 
+                icon={<Plus size={18} />} 
+                label="Add Product" 
+                active={!isEdit && window.location.pathname.includes('/add')} // Highlight if on add page
+                onClick={() => {
+                  navigate('/admin/menu/add');
+                  setSidebarOpen(false);
+                }}
+              />
+              <SidebarLink 
+                icon={<UserPlus size={18} />} 
+                label="New User" 
+                onClick={() => {
+                  navigate('/admin/users/add');
+                  setSidebarOpen(false);
+                }}
+              />
+            </div>
           </div>
         </nav>
 
-        <main className="p-4 sm:p-8 max-w-4xl mx-auto">
+        {/* Sidebar Footer - Logout */}
+        <div className="p-4 border-t border-white/10">
+          <button 
+            onClick={() => setShowLogoutModal(true)}
+            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+          >
+            <LogOut size={18} />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+        {/* Top Bar with Hamburger Menu */}
+        <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-4 sticky top-0 z-30 shadow-sm">
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <Menu size={24} className="text-slate-600" />
+          </button>
+          <div className="flex-1">
+            <p className="text-sm text-slate-400">Welcome back,</p>
+            <p className="font-black text-slate-800">
+              {user?.full_name || 'Admin'}
+            </p>
+          </div>
+          <div className="text-right text-xs md:text-sm text-slate-400 font-bold bg-slate-50 px-4 py-2 rounded-xl whitespace-nowrap">
+            {formatFullDate()}
+          </div>
+        </div>
+
+        {/* MAIN CONTENT */}
+        <main className="p-4 md:p-8 max-w-4xl mx-auto w-full">
           <button onClick={() => navigate('/admin/menu')} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-6 sm:mb-8 font-bold group transition-all">
             <div className="p-1.5 sm:p-2 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-all">
               <ArrowLeft size={16} className="sm:size-18" />
@@ -212,6 +370,11 @@ const AddEditProduct = () => {
             </div>
           </div>
         </main>
+
+        {/* Footer */}
+        <footer className="bg-[#1d3557] text-white py-4 md:py-6 text-center w-full mt-auto">
+          <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
+        </footer>
       </div>
 
       {/* --- SUCCESS MODAL - Responsive --- */}

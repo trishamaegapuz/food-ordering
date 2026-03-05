@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
   BarChart3, TrendingUp, DollarSign, Calendar, 
-  Trash2, Download, LogOut, AlertCircle
+  Trash2, Download, LogOut, AlertCircle,
+  Menu, Home, Users, ShoppingBag, ClipboardList, Plus, UserPlus
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -23,12 +24,35 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://food-ordering-wq61.onre
 
 const AdminSales = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [data, setData] = useState({ summary: {}, topItems: [], recentOrders: [] });
   const [loading, setLoading] = useState(true);
   
   // Modal States
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState({ show: false, orderId: null });
+  
+  // Sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Fetch user data on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    
+    if (!token || !savedUser) {
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+    } catch (err) {
+      console.error("Error parsing user data:", err);
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const fetchSalesData = async () => {
     try {
@@ -45,13 +69,10 @@ const AdminSales = () => {
   };
 
   useEffect(() => { 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
+    if (user) {
+      fetchSalesData();
     }
-    fetchSalesData(); 
-  }, [navigate]);
+  }, [user]);
 
   const confirmLogout = () => {
     localStorage.removeItem('token');
@@ -99,30 +120,175 @@ const AdminSales = () => {
     }]
   };
 
+  // Format date to full format: "Thursday, March 5, 2026"
+  const formatFullDate = () => {
+    return new Date().toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  // Sidebar Link Component
+  const SidebarLink = ({ icon, label, active = false, onClick }) => (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+        active 
+          ? 'bg-white/10 text-white' 
+          : 'text-white/60 hover:bg-white/10 hover:text-white'
+      }`}
+    >
+      {icon}
+      <span className="text-sm font-medium">{label}</span>
+    </button>
+  );
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FC] font-sans text-slate-600">
-      <div className="flex-grow">
-        {/* NAVIGATION - Responsive */}
-        <nav className="bg-white border-b border-slate-100 px-4 sm:px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-          <div className="flex items-center gap-2 cursor-pointer flex-shrink-0" onClick={() => navigate('/admin-dashboard')}>
-            <span className="text-[#e63946] text-xl sm:text-2xl font-black">Food</span>
-            <span className="text-[#1d3557] text-xl sm:text-2xl font-black">Ordering</span>
+    <div className="min-h-screen flex bg-[#F8F9FC] font-sans text-slate-600">
+      {/* Global styles */}
+      <style>{`
+        html, body {
+          overflow-x: hidden !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        * {
+          box-sizing: border-box;
+        }
+      `}</style>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50
+        transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+        lg:translate-x-0 transition-transform duration-300 ease-in-out
+        w-64 bg-[#1d3557] text-white flex flex-col
+      `}>
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>
+            <span className="text-[#e63946] text-xl font-black">Food</span>
+            <span className="text-white text-xl font-black">Ordering</span>
           </div>
-          {/* Scrollable nav links on mobile */}
-          <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm font-medium overflow-x-auto pb-1 flex-nowrap ml-4 hide-scrollbar">
-            <button onClick={() => navigate('/admin-dashboard')} className="text-slate-400 hover:text-blue-500 transition-colors whitespace-nowrap">Dashboard</button>
-            <button onClick={() => navigate('/admin/users')} className="text-slate-400 hover:text-blue-500 transition-colors whitespace-nowrap">Users</button>
-            <button onClick={() => navigate('/admin/menu')} className="text-slate-400 hover:text-blue-500 transition-colors whitespace-nowrap">Menu</button>
-            <button onClick={() => navigate('/admin/orders')} className="text-slate-400 hover:text-blue-500 transition-colors whitespace-nowrap">Orders</button>
-            <button className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 whitespace-nowrap">Sales</button>
-            <button onClick={() => setShowLogoutModal(true)} className="text-slate-400 hover:text-red-500 flex items-center gap-1 font-bold transition-colors whitespace-nowrap ml-2 sm:ml-4">
-              Logout <LogOut size={14} className="sm:size-16" />
-            </button>
+          <p className="text-xs text-white/50 mt-2 font-medium">Admin Dashboard</p>
+        </div>
+
+        {/* Sidebar Navigation */}
+        <nav className="flex-1 overflow-y-auto py-6">
+          <div className="space-y-1 px-4">
+            <SidebarLink 
+              icon={<Home size={18} />} 
+              label="Dashboard" 
+              onClick={() => {
+                navigate('/admin-dashboard');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<Users size={18} />} 
+              label="Users" 
+              onClick={() => {
+                navigate('/admin/users');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<ShoppingBag size={18} />} 
+              label="Menu" 
+              onClick={() => {
+                navigate('/admin/menu');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<ClipboardList size={18} />} 
+              label="Orders" 
+              onClick={() => {
+                navigate('/admin/orders');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<BarChart3 size={18} />} 
+              label="Sales" 
+              active={true}
+              onClick={() => {
+                navigate('/admin/sales');
+                setSidebarOpen(false);
+              }}
+            />
+          </div>
+
+          {/* Quick Actions Section */}
+          <div className="mt-8 px-4">
+            <p className="text-xs text-white/40 uppercase tracking-wider font-bold mb-3 px-2">Quick Actions</p>
+            <div className="space-y-1">
+              <SidebarLink 
+                icon={<Plus size={18} />} 
+                label="Add Product" 
+                onClick={() => {
+                  navigate('/admin/menu/add');
+                  setSidebarOpen(false);
+                }}
+              />
+              <SidebarLink 
+                icon={<UserPlus size={18} />} 
+                label="New User" 
+                onClick={() => {
+                  navigate('/admin/users/add');
+                  setSidebarOpen(false);
+                }}
+              />
+            </div>
           </div>
         </nav>
 
+        {/* Sidebar Footer - Logout */}
+        <div className="p-4 border-t border-white/10">
+          <button 
+            onClick={() => setShowLogoutModal(true)}
+            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+          >
+            <LogOut size={18} />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+        {/* Top Bar with Hamburger Menu */}
+        <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-4 sticky top-0 z-30 shadow-sm">
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <Menu size={24} className="text-slate-600" />
+          </button>
+          <div className="flex-1">
+            <p className="text-sm text-slate-400">Welcome back,</p>
+            <p className="font-black text-slate-800">
+              {user?.full_name || 'Admin'}
+            </p>
+          </div>
+          <div className="text-right text-xs md:text-sm text-slate-400 font-bold bg-slate-50 px-4 py-2 rounded-xl whitespace-nowrap">
+            {formatFullDate()}
+          </div>
+        </div>
+
         {/* MAIN CONTENT - Responsive padding */}
-        <main className="p-4 sm:p-8 max-w-[1600px] mx-auto w-full">
+        <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
           {/* Header and Export - stack on mobile */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6 sm:mb-10">
             <div>
@@ -194,13 +360,12 @@ const AdminSales = () => {
             </>
           )}
         </main>
+
+        {/* Footer */}
+        <footer className="bg-[#1d3557] text-white py-4 md:py-6 text-center w-full mt-auto">
+          <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
+        </footer>
       </div>
-
-      <footer className="bg-[#1d3557] text-white py-4 sm:py-6 text-center w-full">
-        <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
-      </footer>
-
-      {/* --- MODALS - responsive --- */}
 
       {/* DELETE CONFIRMATION MODAL */}
       {deleteModal.show && (
