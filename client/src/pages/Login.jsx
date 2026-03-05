@@ -10,7 +10,6 @@ const Login = () => {
   const [status, setStatus] = useState({ show: false, message: '', type: '' });
   const navigate = useNavigate();
 
-  // DYNAMIC URL: Gagamit ng Render URL kung deployed, localhost kung hindi.
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
   axios.defaults.withCredentials = true;
@@ -28,13 +27,11 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // FIXED: URL updated from localhost to dynamic API_URL
       const res = await axios.post(`${API_URL}/api/login`, { email, password });
       
       if (res.data.success) {
         setStatus({ show: true, message: "Login Successful! Redirecting...", type: 'success' });
         
-        // Save token and user details
         localStorage.setItem('token', res.data.token || 'authenticated_user');
         localStorage.setItem('user', JSON.stringify(res.data.user));
         
@@ -114,11 +111,39 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {/* Responsive Styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          .login-card {
+            width: 90% !important;
+            padding: 30px 20px !important;
+          }
+          .login-title {
+            font-size: 28px !important;
+          }
+          .login-input {
+            padding: 14px !important;
+            font-size: 14px !important;
+          }
+          .login-button {
+            padding: 14px !important;
+            font-size: 16px !important;
+          }
+          .login-toast {
+            top: 15px !important;
+            right: 15px !important;
+            left: 15px !important;
+            min-width: auto !important;
+            width: auto !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
 
-// Styles same as your original
+// Styles same as your original but with added classes for targeting
 const styles = {
   background: {
     backgroundImage: `url('https://wallpapers.com/images/featured/food-4k-spdnpz7bhmx4kv2r.jpg')`,
@@ -161,10 +186,22 @@ const styles = {
     borderRadius: '25px',
     width: '450px',
     boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-    textAlign: 'center'
+    textAlign: 'center',
+    className: 'login-card'
   },
-  title: { margin: '0', color: '#333', fontSize: '32px', fontWeight: '900' },
-  subtitle: { color: '#666', marginBottom: '35px', fontSize: '16px', fontWeight: '500' },
+  title: {
+    margin: '0',
+    color: '#333',
+    fontSize: '32px',
+    fontWeight: '900',
+    className: 'login-title'
+  },
+  subtitle: {
+    color: '#666',
+    marginBottom: '35px',
+    fontSize: '16px',
+    fontWeight: '500'
+  },
   input: {
     width: '100%',
     padding: '16px',
@@ -175,7 +212,8 @@ const styles = {
     fontSize: '16px',
     outline: 'none',
     backgroundColor: '#fbfbfb',
-    transition: '0.2s'
+    transition: '0.2s',
+    className: 'login-input'
   },
   button: {
     width: '100%',
@@ -188,10 +226,19 @@ const styles = {
     fontSize: '18px',
     marginTop: '10px',
     transition: '0.3s',
-    boxShadow: '0 5px 15px rgba(230, 126, 34, 0.3)'
+    boxShadow: '0 5px 15px rgba(230, 126, 34, 0.3)',
+    className: 'login-button'
   },
-  footerText: { marginTop: '25px', fontSize: '15px', color: '#444' },
-  link: { color: '#e67e22', textDecoration: 'none', fontWeight: 'bold' }
+  footerText: {
+    marginTop: '25px',
+    fontSize: '15px',
+    color: '#444'
+  },
+  link: {
+    color: '#e67e22',
+    textDecoration: 'none',
+    fontWeight: 'bold'
+  }
 };
 
 export default Login;

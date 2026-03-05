@@ -44,7 +44,7 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
-// Base API URL – gamitin ang iisang URL para sa lahat ng requests
+// Base API URL
 const API_BASE_URL = 'https://food-ordering-wq61.onrender.com';
 
 const Menu = () => {
@@ -107,7 +107,6 @@ const Menu = () => {
     setUser(userData);
     setDeliveryAddress(userData.address || '');
 
-    // Fetch products from the same API base
     const fetchProducts = async () => {
       setProductsLoading(true);
       setProductsError(null);
@@ -131,7 +130,7 @@ const Menu = () => {
     fetchProducts();
   }, [navigate]);
 
-  // Fetch user orders separately, with user dependency
+  // Fetch user orders separately
   useEffect(() => {
     if (user?.id) {
       fetchOrders(user.id);
@@ -397,7 +396,7 @@ const Menu = () => {
   if (!user) return null;
 
   return (
-    <div style={styles.page}>
+    <div className="menu-page" style={styles.page}>
       {/* Notification Toast */}
       {notification.show && (
         <div style={{
@@ -431,19 +430,85 @@ const Menu = () => {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
+
+        /* Responsive Design for Mobile */
+        @media (max-width: 768px) {
+          .menu-nav {
+            padding: 10px 4% !important;
+          }
+          .menu-nav .nav-links {
+            gap: 12px !important;
+          }
+          .menu-nav .profile-section div:last-child {
+            display: none !important; /* Hide "View Profile" text on mobile */
+          }
+          .menu-nav .profile-section {
+            padding: 2px 5px !important;
+          }
+          .menu-nav .track-order span {
+            display: none !important; /* Hide "Track Order" text, show icon only */
+          }
+          .menu-hero {
+            height: 200px !important;
+            padding: 0 15px !important;
+          }
+          .menu-hero h1 {
+            font-size: 24px !important;
+          }
+          .menu-hero .search-bar {
+            width: 100% !important;
+          }
+          .menu-categories {
+            gap: 8px !important;
+            padding: 15px 4% !important;
+          }
+          .menu-categories button {
+            padding: 8px 14px !important;
+            font-size: 12px !important;
+          }
+          .menu-main {
+            padding: 0 4% 30px 4% !important;
+          }
+          .menu-grid {
+            gap: 15px !important;
+            grid-template-columns: 1fr !important; /* Single column on mobile */
+          }
+          /* Sidebars - full screen overlay on mobile */
+          .menu-cart-sidebar,
+          .menu-tracking-sidebar {
+            width: 100% !important;
+            height: 100% !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: auto !important;
+            border-left: none !important;
+            box-shadow: none !important;
+            z-index: 2000 !important;
+          }
+          .menu-cart-sidebar .sidebar-header,
+          .menu-tracking-sidebar .sidebar-header {
+            padding: 20px !important;
+          }
+          /* Modals - full width on mobile */
+          .modal-content {
+            width: 95% !important;
+            max-width: none !important;
+            margin: 10px !important;
+          }
+        }
       `}</style>
 
       <div style={styles.contentWrapper}>
         {/* Navigation */}
-        <nav style={styles.nav}>
+        <nav className="menu-nav" style={styles.nav}>
           <div style={{...styles.logoGroup, cursor: 'pointer'}} onClick={() => navigate('/menu')}>
             <span style={{ color: '#e63946', fontSize: '26px', fontWeight: '900' }}>Food</span>
             <span style={{ color: '#1d3557', fontSize: '26px', fontWeight: '900' }}>Ordering</span>
           </div>
 
-          <div style={styles.navLinks}>
-            {/* Profile Section - now shows profile picture if available */}
-            <div style={styles.profileSection} onClick={() => navigate('/profile')}>
+          <div className="nav-links" style={styles.navLinks}>
+            {/* Profile Section */}
+            <div className="profile-section" style={styles.profileSection} onClick={() => navigate('/profile')}>
               {user.profile_picture ? (
                 <img 
                   src={`${API_BASE_URL}/uploads/${user.profile_picture}`} 
@@ -459,7 +524,7 @@ const Menu = () => {
               </div>
             </div>
             
-            <div style={styles.trackOrder} onClick={() => setShowTracking(!showTracking)}>
+            <div className="track-order" style={styles.trackOrder} onClick={() => setShowTracking(!showTracking)}>
               <MapPin size={18} color="#e63946" />
               <span>Track Order</span>
             </div>
@@ -476,9 +541,9 @@ const Menu = () => {
         </nav>
 
         {/* Hero */}
-        <div style={styles.hero}>
+        <div className="menu-hero" style={styles.hero}>
           <h1 style={styles.heroTitle}>Craving for something delicious?</h1>
-          <div style={styles.searchBar}>
+          <div className="search-bar" style={styles.searchBar}>
             <input 
               type="text" 
               placeholder="Search for pizza, burgers, or dessert..." 
@@ -491,7 +556,7 @@ const Menu = () => {
         </div>
 
         {/* Categories */}
-        <div style={styles.categoryContainer}>
+        <div className="menu-categories" style={styles.categoryContainer}>
           {['All', 'Appetizers', 'Main Courses', 'Desserts', 'Beverages'].map((cat) => (
             <button key={cat} onClick={() => setSelectedCategory(cat)}
               style={{ 
@@ -506,9 +571,9 @@ const Menu = () => {
           ))}
         </div>
 
-        {/* Main content with sidebar cart */}
-        <div style={styles.mainContainer}>
-          <div style={{...styles.grid, marginRight: showCart ? '380px' : '0'}}>
+        {/* Main content */}
+        <div className="menu-main" style={styles.mainContainer}>
+          <div className="menu-grid" style={{...styles.grid, marginRight: showCart ? '380px' : '0'}}>
             {productsLoading ? (
               <div style={{ textAlign: 'center', gridColumn: '1/-1', padding: '50px', color: '#999' }}>
                 <RefreshCw size={40} className="animate-spin" style={{ margin: '0 auto 15px', opacity: 0.3 }} />
@@ -556,7 +621,7 @@ const Menu = () => {
 
           {/* Cart Sidebar */}
           {showCart && (
-            <div style={styles.sidebar}>
+            <div className="menu-cart-sidebar" style={styles.sidebar}>
               <div style={styles.sidebarHeader}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                   <ShoppingCart size={20} color="#e63946" />
@@ -606,9 +671,9 @@ const Menu = () => {
             </div>
           )}
 
-          {/* Tracking Sidebar with Tabs */}
+          {/* Tracking Sidebar */}
           {showTracking && (
-            <div style={{...styles.sidebar, width: '380px'}}>
+            <div className="menu-tracking-sidebar" style={{...styles.sidebar, width: '380px'}}>
               <div style={styles.sidebarHeader}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                   <Truck size={20} color="#e63946" />
@@ -707,7 +772,6 @@ const Menu = () => {
                           <div style={{fontSize: '12px'}}>{order.location_name || 'Updating...'}</div>
                         </div>
                       )}
-                      {/* View on Map button removed */}
                     </div>
                   ))
                 )}
@@ -720,7 +784,7 @@ const Menu = () => {
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div style={styles.modalOverlay}>
-          <div style={{...styles.modalContent, maxWidth: '400px'}}>
+          <div className="modal-content" style={{...styles.modalContent, maxWidth: '400px'}}>
             <div style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Confirm Logout</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={cancelLogout} />
@@ -751,7 +815,7 @@ const Menu = () => {
       {/* Checkout Modal */}
       {showCheckoutModal && (
         <div style={styles.modalOverlay}>
-          <div style={styles.modalContent}>
+          <div className="modal-content" style={styles.modalContent}>
             <div style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Confirm Your Order</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowCheckoutModal(false)} />
@@ -827,7 +891,7 @@ const Menu = () => {
       {/* Address Modal */}
       {showAddressModal && (
         <div style={styles.modalOverlay}>
-          <div style={{...styles.modalContent, maxWidth: '450px'}}>
+          <div className="modal-content" style={{...styles.modalContent, maxWidth: '450px'}}>
             <div style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Delivery Address</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowAddressModal(false)} />
@@ -869,7 +933,7 @@ const Menu = () => {
       {/* GCash Modal */}
       {showGCashModal && (
         <div style={styles.modalOverlay}>
-          <div style={{...styles.modalContent, maxWidth: '450px'}}>
+          <div className="modal-content" style={{...styles.modalContent, maxWidth: '450px'}}>
             <div style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>GCash Payment</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowGCashModal(false)} />
@@ -921,7 +985,7 @@ const Menu = () => {
       {/* Card Modal */}
       {showCardModal && (
         <div style={styles.modalOverlay}>
-          <div style={{...styles.modalContent, maxWidth: '450px'}}>
+          <div className="modal-content" style={{...styles.modalContent, maxWidth: '450px'}}>
             <div style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Card Payment</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowCardModal(false)} />
@@ -987,7 +1051,7 @@ const Menu = () => {
       {/* Tracking Map Modal */}
       {showTrackingMapModal && selectedOrderForMap && (
         <div style={styles.modalOverlay}>
-          <div style={{...styles.modalContent, maxWidth: '800px', width: '90%'}}>
+          <div className="modal-content" style={{...styles.modalContent, maxWidth: '800px', width: '90%'}}>
             <div style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Order #{selectedOrderForMap.id} Tracking</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowTrackingMapModal(false)} />
@@ -1068,9 +1132,17 @@ const Menu = () => {
         </div>
       )}
 
-      {/* UPDATED FOOTER – matches Users.jsx */}
-      <footer className="bg-[#1d3557] text-white py-6 text-center w-full">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
+      {/* Footer */}
+      <footer style={{
+        backgroundColor: '#1d3557',
+        color: 'white',
+        padding: '20px',
+        textAlign: 'center',
+        marginTop: 'auto'
+      }}>
+        <p style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.2em', opacity: 0.8, margin: 0 }}>
+          © 2026 Food Ordering. All rights reserved.
+        </p>
       </footer>
     </div>
   );

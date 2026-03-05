@@ -30,7 +30,6 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // FIXED: URL updated from localhost to dynamic API_URL
       await axios.post(`${API_URL}/api/register`, formData);
       setStatus({ 
         show: true, 
@@ -118,11 +117,39 @@ const Register = () => {
           <p style={styles.footerText}>Already have an account? <Link to="/login" style={styles.link}>Login</Link></p>
         </div>
       </div>
+
+      {/* Responsive Styles */}
+      <style>{`
+        @media (max-width: 768px) {
+          .register-card {
+            width: 90% !important;
+            padding: 30px 20px !important;
+          }
+          .register-title {
+            font-size: 28px !important;
+          }
+          .register-input {
+            padding: 14px !important;
+            font-size: 14px !important;
+          }
+          .register-button {
+            padding: 14px !important;
+            font-size: 16px !important;
+          }
+          .register-toast {
+            top: 15px !important;
+            right: 15px !important;
+            left: 15px !important;
+            min-width: auto !important;
+            width: auto !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
 
-// Styles same as your original
+// Styles with added class names
 const styles = {
   background: {
     backgroundImage: `url('https://wallpapers.com/images/featured/food-4k-spdnpz7bhmx4kv2r.jpg')`,
@@ -149,7 +176,8 @@ const styles = {
     zIndex: 1000,
     boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
     minWidth: '320px',
-    fontFamily: 'sans-serif'
+    fontFamily: 'sans-serif',
+    className: 'register-toast'
   },
   overlay: {
     backgroundColor: 'rgba(0,0,0,0.65)',
@@ -165,10 +193,22 @@ const styles = {
     borderRadius: '25px',
     width: '450px',
     boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-    textAlign: 'center'
+    textAlign: 'center',
+    className: 'register-card'
   },
-  title: { margin: '0', color: '#333', fontSize: '32px', fontWeight: '900' },
-  subtitle: { color: '#666', marginBottom: '35px', fontSize: '16px', fontWeight: '500' },
+  title: {
+    margin: '0',
+    color: '#333',
+    fontSize: '32px',
+    fontWeight: '900',
+    className: 'register-title'
+  },
+  subtitle: {
+    color: '#666',
+    marginBottom: '35px',
+    fontSize: '16px',
+    fontWeight: '500'
+  },
   input: {
     width: '100%',
     padding: '15px',
@@ -178,7 +218,8 @@ const styles = {
     boxSizing: 'border-box',
     fontSize: '15px',
     outline: 'none',
-    backgroundColor: '#fbfbfb'
+    backgroundColor: '#fbfbfb',
+    className: 'register-input'
   },
   button: {
     width: '100%',
@@ -191,10 +232,19 @@ const styles = {
     fontSize: '18px',
     marginTop: '10px',
     boxShadow: '0 5px 15px rgba(230, 126, 34, 0.3)',
-    transition: '0.3s'
+    transition: '0.3s',
+    className: 'register-button'
   },
-  footerText: { marginTop: '25px', fontSize: '15px', color: '#444' },
-  link: { color: '#e67e22', textDecoration: 'none', fontWeight: 'bold' }
+  footerText: {
+    marginTop: '25px',
+    fontSize: '15px',
+    color: '#444'
+  },
+  link: {
+    color: '#e67e22',
+    textDecoration: 'none',
+    fontWeight: 'bold'
+  }
 };
 
 export default Register;
