@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, ShoppingBag, Box, DollarSign, 
   Plus, UserPlus, Zap, TrendingUp, LogOut,
-  Tag, ClipboardList, BarChart3, Clock
+  Tag, ClipboardList, BarChart3, Clock,
+  Menu, X, Home
 } from 'lucide-react'; 
 import {
   Chart as ChartJS,
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
   const [viewType, setViewType] = useState('weekly');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchAdminData = async () => {
     const token = localStorage.getItem('token');
@@ -85,63 +87,151 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FC] font-sans text-slate-600">
-      {/* Global styles to prevent horizontal scroll */}
+    <div className="min-h-screen flex bg-[#F8F9FC] font-sans text-slate-600">
+      {/* Global styles */}
       <style>{`
         html, body {
           overflow-x: hidden !important;
           width: 100% !important;
-          position: relative !important;
           margin: 0 !important;
           padding: 0 !important;
         }
         * {
-          max-width: 100vw;
           box-sizing: border-box;
-        }
-        /* Hide scrollbar for nav on mobile but keep functionality */
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
         }
       `}</style>
 
-      <div className="flex-grow">
-        {/* NAVIGATION - Responsive with improved mobile handling */}
-        <nav className="bg-white border-b border-slate-100 px-4 md:px-8 py-3 md:py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm w-full">
-          <div className="flex items-center gap-2 cursor-pointer flex-shrink-0" onClick={() => navigate('/admin-dashboard')}>
-            <span className="text-[#e63946] text-xl md:text-2xl font-black whitespace-nowrap">Food</span>
-            <span className="text-[#1d3557] text-xl md:text-2xl font-black whitespace-nowrap">Ordering</span>
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50
+        transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+        lg:translate-x-0 transition-transform duration-300 ease-in-out
+        w-64 bg-[#1d3557] text-white flex flex-col
+      `}>
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin-dashboard')}>
+            <span className="text-[#e63946] text-xl font-black">Food</span>
+            <span className="text-white text-xl font-black">Ordering</span>
           </div>
-          
-          {/* Navigation links container - scrollable but constrained */}
-          <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm font-medium overflow-x-auto pb-1 flex-nowrap ml-2 hide-scrollbar" style={{ maxWidth: 'calc(100% - 120px)' }}>
-            <button className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 whitespace-nowrap">Dashboard</button>
-            <button onClick={() => navigate('/admin/users')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Users</button>
-            <button onClick={() => navigate('/admin/menu')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Menu</button>
-            <button onClick={() => navigate('/admin/orders')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Orders</button>
-            <button onClick={() => navigate('/admin/sales')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Sales</button>
-            <button onClick={handleLogoutClick} className="text-slate-400 hover:text-red-500 flex items-center gap-1 font-bold whitespace-nowrap">
-              <span className="hidden sm:inline">Logout</span>
-              <LogOut size={14} className="md:size-16" />
-            </button>
+          <p className="text-xs text-white/50 mt-2 font-medium">Admin Dashboard</p>
+        </div>
+
+        {/* Sidebar Navigation */}
+        <nav className="flex-1 overflow-y-auto py-6">
+          <div className="space-y-1 px-4">
+            <SidebarLink 
+              icon={<Home size={18} />} 
+              label="Dashboard" 
+              active={true}
+              onClick={() => {
+                navigate('/admin-dashboard');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<Users size={18} />} 
+              label="Users" 
+              onClick={() => {
+                navigate('/admin/users');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<ShoppingBag size={18} />} 
+              label="Menu" 
+              onClick={() => {
+                navigate('/admin/menu');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<ClipboardList size={18} />} 
+              label="Orders" 
+              onClick={() => {
+                navigate('/admin/orders');
+                setSidebarOpen(false);
+              }}
+            />
+            <SidebarLink 
+              icon={<BarChart3 size={18} />} 
+              label="Sales" 
+              onClick={() => {
+                navigate('/admin/sales');
+                setSidebarOpen(false);
+              }}
+            />
+          </div>
+
+          {/* Quick Actions Section */}
+          <div className="mt-8 px-4">
+            <p className="text-xs text-white/40 uppercase tracking-wider font-bold mb-3 px-2">Quick Actions</p>
+            <div className="space-y-1">
+              <SidebarLink 
+                icon={<Plus size={18} />} 
+                label="Add Product" 
+                onClick={() => {
+                  navigate('/admin/menu/add');
+                  setSidebarOpen(false);
+                }}
+              />
+              <SidebarLink 
+                icon={<UserPlus size={18} />} 
+                label="New User" 
+                onClick={() => {
+                  navigate('/admin/users/add');
+                  setSidebarOpen(false);
+                }}
+              />
+            </div>
           </div>
         </nav>
 
-        {/* MAIN CONTENT - Responsive padding */}
+        {/* Sidebar Footer - Logout */}
+        <div className="p-4 border-t border-white/10">
+          <button 
+            onClick={handleLogoutClick}
+            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-white/10 transition-colors text-white/80 hover:text-white"
+          >
+            <LogOut size={18} />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+        {/* Top Bar with Hamburger Menu */}
+        <div className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-4 sticky top-0 z-30 shadow-sm">
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <Menu size={24} className="text-slate-600" />
+          </button>
+          <div className="flex-1">
+            <p className="text-sm text-slate-400">Welcome back,</p>
+            <p className="font-black text-slate-800">Admin</p>
+          </div>
+          <div className="text-right text-xs md:text-sm text-slate-400 font-bold bg-slate-50 px-4 py-2 rounded-xl whitespace-nowrap">
+            {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </div>
+        </div>
+
+        {/* MAIN CONTENT */}
         <main className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
-          {/* Header and Date - stack on mobile */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6 md:mb-8">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-black text-[#1d3557] tracking-tight">Dashboard Overview</h1>
-              <p className="text-xs md:text-sm text-slate-400 font-medium">Monitoring Food Ordering is now easier than ever.</p>
-            </div>
-            <div className="text-right text-xs md:text-sm text-slate-400 font-bold bg-white px-4 md:px-5 py-2 md:py-3 rounded-xl md:rounded-2xl shadow-sm border border-slate-100 whitespace-nowrap">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-            </div>
+          {/* Header */}
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-black text-[#1d3557] tracking-tight">Dashboard Overview</h1>
+            <p className="text-xs md:text-sm text-slate-400 font-medium">Monitoring Food Ordering is now easier than ever.</p>
           </div>
 
           {loading ? (
@@ -150,7 +240,7 @@ const AdminDashboard = () => {
             <div className="text-center py-20 text-red-500">{error}</div>
           ) : (
             <>
-              {/* STATS CARDS - responsive grid */}
+              {/* STATS CARDS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-10">
                 <StatCard title="Total Users" value={stats.total_users} icon={<Users size={20} className="md:size-24"/>} color="#3b82f6" onClick={() => navigate('/admin/users')} />
                 <StatCard title="Total Orders" value={stats.total_orders} icon={<ShoppingBag size={20} className="md:size-24"/>} color="#22c55e" onClick={() => navigate('/admin/orders')} />
@@ -158,7 +248,7 @@ const AdminDashboard = () => {
                 <StatCard title="Total Revenue" value={`₱${Number(stats.total_sales).toLocaleString()}`} icon={<DollarSign size={20} className="md:size-24"/>} color="#ef4444" onClick={() => navigate('/admin/sales')} />
               </div>
 
-              {/* CHART AND QUICK ACTIONS - responsive layout */}
+              {/* CHART AND QUICK ACTIONS */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-6 md:mb-10">
                 {/* SALES OVERVIEW CHART */}
                 <div className="lg:col-span-2 bg-white p-5 md:p-8 rounded-xl md:rounded-[2rem] shadow-sm border border-slate-100">
@@ -202,22 +292,10 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="space-y-4 md:space-y-6">
-                  {/* QUICK ACTIONS */}
-                  <div className="bg-white p-5 md:p-7 rounded-xl md:rounded-[2rem] shadow-sm border border-slate-100">
-                    <h3 className="font-black text-slate-800 mb-4 md:mb-6 flex items-center gap-2 text-base md:text-lg">
-                      <Zap size={18} className="text-yellow-500 fill-yellow-500" /> Quick Actions
-                    </h3>
-                    <div className="space-y-3 md:space-y-4">
-                      <ActionButton icon={<Plus size={16}/>} label="Add New Product" color="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white" onClick={() => navigate('/admin/menu/add')} />
-                      <ActionButton icon={<UserPlus size={16}/>} label="Create New User" color="bg-green-50 text-green-600 hover:bg-green-600 hover:text-white" onClick={() => navigate('/admin/users/add')} />
-                      <ActionButton icon={<Tag size={16}/>} label="Manage Promotions" color="bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white" onClick={() => navigate('/admin/promotions')} />
-                    </div>
-                  </div>
-
                   {/* RECENT ORDERS */}
                   <div className="bg-white p-5 md:p-7 rounded-xl md:rounded-[2rem] shadow-sm border border-slate-100 h-[300px] md:h-[380px] flex flex-col">
                     <h3 className="font-black text-slate-800 mb-3 md:mb-4 flex items-center gap-2 text-base md:text-lg">
-                       Recent Orders
+                      <Clock size={18} /> Recent Orders
                     </h3>
                     <div className="overflow-y-auto space-y-3 md:space-y-4 pr-2 flex-grow scrollbar-hide">
                       {stats.recentOrders?.length > 0 ? stats.recentOrders.map((order, idx) => (
@@ -240,7 +318,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* MANAGEMENT SECTIONS - responsive grid */}
+              {/* MANAGEMENT SECTIONS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 <ManagementCard title="User Management" desc="Manage all users and permissions" icon={<Users className="text-blue-500" size={18}/>} borderColor="border-l-blue-500" onClick={() => navigate('/admin/users')} />
                 <ManagementCard title="Menu Management" desc="Add, edit or remove menu items" icon={<Plus className="text-green-500" size={18}/>} borderColor="border-l-green-500" onClick={() => navigate('/admin/menu')} />
@@ -250,13 +328,14 @@ const AdminDashboard = () => {
             </>
           )}
         </main>
+
+        {/* Footer */}
+        <footer className="bg-[#1d3557] text-white py-4 md:py-6 text-center w-full mt-auto">
+          <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
+        </footer>
       </div>
 
-      <footer className="bg-[#1d3557] text-white py-4 md:py-6 text-center w-full">
-        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-80">© 2026 Food Ordering. All rights reserved.</p>
-      </footer>
-
-      {/* LOGOUT MODAL - Responsive */}
+      {/* LOGOUT MODAL */}
       {showLogoutModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl md:rounded-[2.5rem] w-full max-w-[90%] md:max-w-sm p-6 md:p-10 text-center shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -276,7 +355,22 @@ const AdminDashboard = () => {
   );
 };
 
-// HELPER COMPONENTS (also made responsive)
+// Sidebar Link Component
+const SidebarLink = ({ icon, label, active = false, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+      active 
+        ? 'bg-white/10 text-white' 
+        : 'text-white/60 hover:bg-white/10 hover:text-white'
+    }`}
+  >
+    {icon}
+    <span className="text-sm font-medium">{label}</span>
+  </button>
+);
+
+// Stat Card Component
 const StatCard = ({ title, value, icon, color, onClick }) => (
   <div onClick={onClick} className="bg-white p-5 md:p-7 rounded-xl md:rounded-[2rem] shadow-sm border-b-4 flex justify-between items-start transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer group" style={{ borderBottomColor: color }}>
     <div>
@@ -287,6 +381,7 @@ const StatCard = ({ title, value, icon, color, onClick }) => (
   </div>
 );
 
+// Management Card Component
 const ManagementCard = ({ title, desc, icon, onClick, borderColor }) => (
   <div onClick={onClick} className={`bg-white p-4 md:p-6 rounded-xl md:rounded-[1.5rem] shadow-sm border border-slate-100 border-l-[4px] md:border-l-[6px] ${borderColor} flex items-center gap-3 md:gap-5 hover:border-blue-200 transition-all cursor-pointer group hover:shadow-md`}>
     <div className="p-2 md:p-4 bg-slate-50 rounded-lg md:rounded-2xl group-hover:scale-110 transition-transform">{icon}</div>
@@ -295,12 +390,6 @@ const ManagementCard = ({ title, desc, icon, onClick, borderColor }) => (
       <p className="text-[9px] md:text-[11px] text-slate-400 font-bold leading-tight">{desc}</p>
     </div>
   </div>
-);
-
-const ActionButton = ({ icon, label, color, onClick }) => (
-  <button onClick={onClick} className={`w-full flex items-center gap-2 md:gap-3 p-3 md:p-4 rounded-lg md:rounded-2xl font-black text-[9px] md:text-xs uppercase tracking-wider transition-all shadow-sm ${color}`}>
-    <span className="p-1 md:p-1.5 rounded-lg bg-white/20">{icon}</span> {label}
-  </button>
 );
 
 export default AdminDashboard;
