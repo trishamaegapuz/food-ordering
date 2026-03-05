@@ -431,49 +431,103 @@ const Menu = () => {
           to { transform: translateX(0); opacity: 1; }
         }
 
+        /* Global fix para maiwasan ang horizontal scroll */
+        html, body {
+          overflow-x: hidden !important;
+          width: 100% !important;
+          position: relative !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        * {
+          max-width: 100vw;
+          box-sizing: border-box;
+        }
+
         /* Responsive Design for Mobile */
         @media (max-width: 768px) {
           .menu-nav {
             padding: 10px 4% !important;
           }
           .menu-nav .nav-links {
-            gap: 12px !important;
+            gap: 8px !important;
           }
           .menu-nav .profile-section div:last-child {
-            display: none !important; /* Hide "View Profile" text on mobile */
+            display: none !important;
           }
           .menu-nav .profile-section {
             padding: 2px 5px !important;
           }
           .menu-nav .track-order span {
-            display: none !important; /* Hide "Track Order" text, show icon only */
+            display: none !important;
+          }
+          /* Para sa sobrang liit na screen, pwede ring itago ang name sa profile */
+          .menu-nav .profile-section p:first-child {
+            display: none !important;
+          }
+          .menu-nav .cart-icon {
+            margin-left: auto;
           }
           .menu-hero {
-            height: 200px !important;
-            padding: 0 15px !important;
+            height: 180px !important;
+            padding: 0 10px !important;
           }
           .menu-hero h1 {
-            font-size: 24px !important;
+            font-size: 20px !important;
+            margin-bottom: 15px !important;
           }
           .menu-hero .search-bar {
             width: 100% !important;
           }
+          .menu-hero .search-bar input {
+            padding: 10px 15px !important;
+            font-size: 13px !important;
+          }
           .menu-categories {
-            gap: 8px !important;
-            padding: 15px 4% !important;
+            gap: 6px !important;
+            padding: 12px 4% !important;
           }
           .menu-categories button {
-            padding: 8px 14px !important;
-            font-size: 12px !important;
+            padding: 6px 10px !important;
+            font-size: 10px !important;
           }
           .menu-main {
-            padding: 0 4% 30px 4% !important;
+            padding: 0 4% 20px 4% !important;
           }
           .menu-grid {
-            gap: 15px !important;
-            grid-template-columns: 1fr !important; /* Single column on mobile */
+            gap: 12px !important;
+            grid-template-columns: 1fr !important;
+            margin-right: 0 !important; /* I-override ang inline style kapag naka-open ang cart */
           }
-          /* Sidebars - full screen overlay on mobile */
+          .menu-card {
+            border-radius: 16px !important;
+          }
+          .menu-card .img-container {
+            height: 150px !important;
+          }
+          .menu-card .card-body {
+            padding: 15px !important;
+          }
+          .menu-card .card-title {
+            font-size: 16px !important;
+          }
+          .menu-card .card-desc {
+            font-size: 12px !important;
+            height: 32px !important;
+          }
+          .menu-card .price-tag {
+            font-size: 18px !important;
+          }
+          .menu-card .tag {
+            font-size: 9px !important;
+            padding: 3px 6px !important;
+          }
+          .menu-card .card-actions button {
+            padding: 8px !important;
+            font-size: 10px !important;
+          }
+          /* Sidebars - full screen overlay */
           .menu-cart-sidebar,
           .menu-tracking-sidebar {
             width: 100% !important;
@@ -487,13 +541,120 @@ const Menu = () => {
           }
           .menu-cart-sidebar .sidebar-header,
           .menu-tracking-sidebar .sidebar-header {
-            padding: 20px !important;
+            padding: 15px 20px !important;
           }
-          /* Modals - full width on mobile */
+          .menu-cart-sidebar .sidebar-content,
+          .menu-tracking-sidebar .sidebar-content {
+            padding: 15px !important;
+          }
+          .menu-cart-sidebar .cart-item {
+            padding-bottom: 12px !important;
+            margin-bottom: 12px !important;
+          }
+          .menu-cart-sidebar .cart-item p {
+            font-size: 13px !important;
+          }
+          .menu-cart-sidebar .qty-controls button {
+            width: 22px !important;
+            height: 22px !important;
+            font-size: 14px !important;
+          }
+          .menu-cart-sidebar .sidebar-footer {
+            padding: 15px !important;
+          }
+          .menu-cart-sidebar .checkout-btn {
+            padding: 14px !important;
+            font-size: 14px !important;
+          }
+          .menu-tracking-sidebar .tracking-item {
+            padding: 12px !important;
+          }
+          .menu-tracking-sidebar .tracking-item .status-badge {
+            font-size: 10px !important;
+            padding: 3px 6px !important;
+          }
+          /* Modals - full width */
           .modal-content {
             width: 95% !important;
             max-width: none !important;
-            margin: 10px !important;
+            margin: 10px auto !important;
+            border-radius: 20px !important;
+          }
+          .modal-content .modal-header {
+            padding: 15px 20px !important;
+          }
+          .modal-content .modal-header h2 {
+            font-size: 18px !important;
+          }
+          .modal-content .modal-body {
+            padding: 20px !important;
+          }
+          .modal-content .modal-footer {
+            padding: 0 20px 20px 20px !important;
+          }
+          .modal-content button {
+            padding: 12px !important;
+            font-size: 12px !important;
+          }
+          /* Checkout modal specific */
+          .modal-content .address-box {
+            padding: 12px !important;
+          }
+          .modal-content .address-box p {
+            font-size: 12px !important;
+          }
+          .modal-content .radio-option {
+            padding: 12px !important;
+          }
+          .modal-content .radio-option span {
+            font-size: 12px !important;
+          }
+          /* Map modal */
+          .modal-content .map-container {
+            height: 250px !important;
+          }
+          .modal-content .location-box {
+            padding: 10px !important;
+          }
+          .modal-content .location-box p {
+            font-size: 12px !important;
+          }
+          /* Footer */
+          footer {
+            padding: 15px !important;
+          }
+          footer p {
+            font-size: 8px !important;
+          }
+        }
+
+        /* For very small screens (below 400px) */
+        @media (max-width: 400px) {
+          .menu-nav .logo-group span {
+            font-size: 18px !important;
+          }
+          .menu-nav .profile-section img,
+          .menu-nav .profile-section .avatar {
+            width: 32px !important;
+            height: 32px !important;
+          }
+          .menu-nav .cart-icon svg {
+            width: 20px !important;
+            height: 20px !important;
+          }
+          .menu-nav .cart-badge {
+            width: 16px !important;
+            height: 16px !important;
+            font-size: 8px !important;
+            top: -8px !important;
+            right: -8px !important;
+          }
+          .menu-hero h1 {
+            font-size: 18px !important;
+          }
+          .menu-categories button {
+            padding: 5px 8px !important;
+            font-size: 9px !important;
           }
         }
       `}</style>
@@ -501,7 +662,7 @@ const Menu = () => {
       <div style={styles.contentWrapper}>
         {/* Navigation */}
         <nav className="menu-nav" style={styles.nav}>
-          <div style={{...styles.logoGroup, cursor: 'pointer'}} onClick={() => navigate('/menu')}>
+          <div className="logo-group" style={{...styles.logoGroup, cursor: 'pointer'}} onClick={() => navigate('/menu')}>
             <span style={{ color: '#e63946', fontSize: '26px', fontWeight: '900' }}>Food</span>
             <span style={{ color: '#1d3557', fontSize: '26px', fontWeight: '900' }}>Ordering</span>
           </div>
@@ -529,9 +690,9 @@ const Menu = () => {
               <span>Track Order</span>
             </div>
 
-            <div style={styles.cartIcon} onClick={() => setShowCart(!showCart)}>
+            <div className="cart-icon" style={styles.cartIcon} onClick={() => setShowCart(!showCart)}>
               <ShoppingCart size={24} color="#1d3557" />
-              {cart.length > 0 && <span style={styles.cartBadge}>{cart.reduce((sum, i) => sum + i.qty, 0)}</span>}
+              {cart.length > 0 && <span className="cart-badge" style={styles.cartBadge}>{cart.reduce((sum, i) => sum + i.qty, 0)}</span>}
             </div>
             
             <button style={styles.navBtn} onClick={handleLogoutClick}>
@@ -598,18 +759,18 @@ const Menu = () => {
               </div>
             ) : (
               filteredProducts.map((product) => (
-                <div key={product.id} style={styles.card}>
-                  <div style={styles.imgContainer}>
+                <div key={product.id} className="menu-card" style={styles.card}>
+                  <div className="img-container" style={styles.imgContainer}>
                     <img src={product.image_url || 'https://via.placeholder.com/300'} alt={product.name} style={styles.cardImg} />
                   </div>
-                  <div style={styles.cardBody}>
-                    <h3 style={styles.cardTitle}>{product.name}</h3>
-                    <p style={styles.cardDesc}>{product.description}</p>
+                  <div className="card-body" style={styles.cardBody}>
+                    <h3 className="card-title" style={styles.cardTitle}>{product.name}</h3>
+                    <p className="card-desc" style={styles.cardDesc}>{product.description}</p>
                     <div style={styles.priceRow}>
-                      <h4 style={styles.priceTag}>₱{product.price}</h4>
-                      <span style={styles.tag}>{product.category}</span>
+                      <h4 className="price-tag" style={styles.priceTag}>₱{product.price}</h4>
+                      <span className="tag" style={styles.tag}>{product.category}</span>
                     </div>
-                    <div style={styles.cardActions}>
+                    <div className="card-actions" style={styles.cardActions}>
                       <button onClick={() => addToCart(product)} style={styles.addBtn}>Add to Cart</button>
                       <button onClick={() => { addToCart(product); setShowCart(true); }} style={styles.buyBtn}>Buy Now</button>
                     </div>
@@ -622,7 +783,7 @@ const Menu = () => {
           {/* Cart Sidebar */}
           {showCart && (
             <div className="menu-cart-sidebar" style={styles.sidebar}>
-              <div style={styles.sidebarHeader}>
+              <div className="sidebar-header" style={styles.sidebarHeader}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                   <ShoppingCart size={20} color="#e63946" />
                   <h2 style={{margin: 0, fontSize: '18px'}}>Your Basket</h2>
@@ -630,7 +791,7 @@ const Menu = () => {
                 <X size={20} style={{cursor: 'pointer'}} onClick={() => setShowCart(false)} />
               </div>
 
-              <div style={styles.sidebarContent}>
+              <div className="sidebar-content" style={styles.sidebarContent}>
                 {cart.length === 0 ? (
                   <div style={{textAlign: 'center', marginTop: '100px', color: '#999'}}>
                     <ShoppingCart size={50} style={{marginBottom: '15px', opacity: 0.2}} />
@@ -639,10 +800,10 @@ const Menu = () => {
                   </div>
                 ) : (
                   cart.map(item => (
-                    <div key={item.id} style={styles.cartItem}>
+                    <div key={item.id} className="cart-item" style={styles.cartItem}>
                       <div style={{flex: 1}}>
                         <p style={{margin: '0 0 5px 0', fontWeight: 'bold', fontSize: '15px'}}>{item.name}</p>
-                        <div style={styles.qtyControls}>
+                        <div className="qty-controls" style={styles.qtyControls}>
                           <button onClick={() => updateQty(item.id, -1)} style={styles.qtyBtn}>-</button>
                           <span style={{fontSize: '14px', fontWeight: 'bold'}}>{item.qty}</span>
                           <button onClick={() => updateQty(item.id, 1)} style={styles.qtyBtn}>+</button>
@@ -658,12 +819,12 @@ const Menu = () => {
               </div>
 
               {cart.length > 0 && (
-                <div style={styles.sidebarFooter}>
+                <div className="sidebar-footer" style={styles.sidebarFooter}>
                   <div style={styles.totalContainer}>
                     <span style={{fontSize: '16px', color: '#666'}}>Subtotal:</span>
                     <span style={{fontSize: '20px', fontWeight: '900', color: '#1d3557'}}>₱{calculateTotal()}</span>
                   </div>
-                  <button style={styles.checkoutBtn} onClick={() => setShowCheckoutModal(true)}>
+                  <button className="checkout-btn" style={styles.checkoutBtn} onClick={() => setShowCheckoutModal(true)}>
                     Checkout Now <ChevronRight size={18} />
                   </button>
                 </div>
@@ -674,7 +835,7 @@ const Menu = () => {
           {/* Tracking Sidebar */}
           {showTracking && (
             <div className="menu-tracking-sidebar" style={{...styles.sidebar, width: '380px'}}>
-              <div style={styles.sidebarHeader}>
+              <div className="sidebar-header" style={styles.sidebarHeader}>
                 <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                   <Truck size={20} color="#e63946" />
                   <h2 style={{margin: 0, fontSize: '18px'}}>Order Tracking</h2>
@@ -710,7 +871,7 @@ const Menu = () => {
                 </button>
               </div>
 
-              <div style={styles.sidebarContent}>
+              <div className="sidebar-content" style={styles.sidebarContent}>
                 {ordersLoading ? (
                   <div style={{ textAlign: 'center', marginTop: '50px', color: '#999' }}>
                     <RefreshCw size={40} className="animate-spin" style={{ margin: '0 auto 15px', opacity: 0.3 }} />
@@ -736,10 +897,10 @@ const Menu = () => {
                   </div>
                 ) : (
                   (trackingTab === 'active' ? activeOrders : historyOrders).map(order => (
-                    <div key={order.id} style={{border: '1px solid #eee', borderRadius: '12px', padding: '15px', marginBottom: '15px'}}>
+                    <div key={order.id} className="tracking-item" style={{border: '1px solid #eee', borderRadius: '12px', padding: '15px', marginBottom: '15px'}}>
                       <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '8px'}}>
                         <span style={{fontWeight: 'bold'}}>Order #{order.id}</span>
-                        <span style={{...styles.statusBadge, backgroundColor: order.status === 'delivered' ? '#d4edda' : '#fff3cd', color: order.status === 'delivered' ? '#155724' : '#856404'}}>
+                        <span className="status-badge" style={{...styles.statusBadge, backgroundColor: order.status === 'delivered' ? '#d4edda' : '#fff3cd', color: order.status === 'delivered' ? '#155724' : '#856404'}}>
                           {order.status}
                         </span>
                       </div>
@@ -785,7 +946,7 @@ const Menu = () => {
       {showLogoutModal && (
         <div style={styles.modalOverlay}>
           <div className="modal-content" style={{...styles.modalContent, maxWidth: '400px'}}>
-            <div style={styles.modalHeader}>
+            <div className="modal-header" style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Confirm Logout</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={cancelLogout} />
             </div>
@@ -816,12 +977,12 @@ const Menu = () => {
       {showCheckoutModal && (
         <div style={styles.modalOverlay}>
           <div className="modal-content" style={styles.modalContent}>
-            <div style={styles.modalHeader}>
+            <div className="modal-header" style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Confirm Your Order</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowCheckoutModal(false)} />
             </div>
 
-            <div style={styles.modalBody}>
+            <div className="modal-body" style={styles.modalBody}>
               <div style={styles.modalSection}>
                 <h4 style={styles.sectionTitle}>Order List</h4>
                 <div style={styles.modalItemList}>
@@ -842,7 +1003,7 @@ const Menu = () => {
               {/* Delivery Address */}
               <div style={styles.modalSection}>
                 <h4 style={styles.sectionTitle}>Delivery Address</h4>
-                <div style={styles.addressBox} onClick={() => setShowAddressModal(true)}>
+                <div className="address-box" style={styles.addressBox} onClick={() => setShowAddressModal(true)}>
                   <MapPin size={20} color="#e63946" style={{marginTop: '3px'}} />
                   <div style={{flex: 1, cursor: 'pointer'}}>
                     <p style={{margin: 0, fontSize: '14px', fontWeight: '700'}}>Deliver to:</p>
@@ -857,19 +1018,19 @@ const Menu = () => {
               <div style={styles.modalSection}>
                 <h4 style={styles.sectionTitle}>Choose Payment Method</h4>
                 <div style={styles.radioGroup}>
-                  <label style={{...styles.radioOption, borderColor: paymentMethod === 'cod' ? '#e63946' : '#eee'}}>
+                  <label className="radio-option" style={{...styles.radioOption, borderColor: paymentMethod === 'cod' ? '#e63946' : '#eee'}}>
                     <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} style={styles.hiddenRadio} />
                     <Truck size={18} color={paymentMethod === 'cod' ? '#e63946' : '#666'} />
                     <span>Cash on Delivery</span>
                   </label>
 
-                  <label style={{...styles.radioOption, borderColor: paymentMethod === 'gcash' ? '#e63946' : '#eee'}}>
+                  <label className="radio-option" style={{...styles.radioOption, borderColor: paymentMethod === 'gcash' ? '#e63946' : '#eee'}}>
                     <input type="radio" name="payment" value="gcash" checked={paymentMethod === 'gcash'} onChange={() => setPaymentMethod('gcash')} style={styles.hiddenRadio} />
                     <Wallet size={18} color={paymentMethod === 'gcash' ? '#e63946' : '#666'} />
                     <span>GCash</span>
                   </label>
 
-                  <label style={{...styles.radioOption, borderColor: paymentMethod === 'card' ? '#e63946' : '#eee'}}>
+                  <label className="radio-option" style={{...styles.radioOption, borderColor: paymentMethod === 'card' ? '#e63946' : '#eee'}}>
                     <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} style={styles.hiddenRadio} />
                     <CreditCard size={18} color={paymentMethod === 'card' ? '#e63946' : '#666'} />
                     <span>Credit/Debit Card</span>
@@ -878,7 +1039,7 @@ const Menu = () => {
               </div>
             </div>
 
-            <div style={styles.modalFooter}>
+            <div className="modal-footer" style={styles.modalFooter}>
               <button style={styles.cancelBtn} onClick={() => setShowCheckoutModal(false)}>Cancel</button>
               <button style={styles.confirmOrderBtn} onClick={handlePayment} disabled={isSubmitting}>
                 {isSubmitting ? 'Processing...' : 'Confirm Order'}
@@ -892,7 +1053,7 @@ const Menu = () => {
       {showAddressModal && (
         <div style={styles.modalOverlay}>
           <div className="modal-content" style={{...styles.modalContent, maxWidth: '450px'}}>
-            <div style={styles.modalHeader}>
+            <div className="modal-header" style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Delivery Address</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowAddressModal(false)} />
             </div>
@@ -934,7 +1095,7 @@ const Menu = () => {
       {showGCashModal && (
         <div style={styles.modalOverlay}>
           <div className="modal-content" style={{...styles.modalContent, maxWidth: '450px'}}>
-            <div style={styles.modalHeader}>
+            <div className="modal-header" style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>GCash Payment</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowGCashModal(false)} />
             </div>
@@ -986,7 +1147,7 @@ const Menu = () => {
       {showCardModal && (
         <div style={styles.modalOverlay}>
           <div className="modal-content" style={{...styles.modalContent, maxWidth: '450px'}}>
-            <div style={styles.modalHeader}>
+            <div className="modal-header" style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Card Payment</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowCardModal(false)} />
             </div>
@@ -1052,12 +1213,12 @@ const Menu = () => {
       {showTrackingMapModal && selectedOrderForMap && (
         <div style={styles.modalOverlay}>
           <div className="modal-content" style={{...styles.modalContent, maxWidth: '800px', width: '90%'}}>
-            <div style={styles.modalHeader}>
+            <div className="modal-header" style={styles.modalHeader}>
               <h2 style={{margin: 0, fontSize: '20px', fontWeight: '800'}}>Order #{selectedOrderForMap.id} Tracking</h2>
               <X size={24} style={{cursor: 'pointer'}} onClick={() => setShowTrackingMapModal(false)} />
             </div>
             <div style={{padding: '20px'}}>
-              <div style={{height: '400px', width: '100%', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px'}}>
+              <div className="map-container" style={{height: '400px', width: '100%', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px'}}>
                 <MapContainer 
                   center={[selectedOrderForMap.dest_latitude || 14.5995, selectedOrderForMap.dest_longitude || 120.9842]} 
                   zoom={13} 
@@ -1106,7 +1267,7 @@ const Menu = () => {
               </div>
 
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
-                <div style={{backgroundColor: '#e7f3ff', padding: '15px', borderRadius: '10px'}}>
+                <div className="location-box" style={{backgroundColor: '#e7f3ff', padding: '15px', borderRadius: '10px'}}>
                   <strong style={{color: '#0056b3'}}>📍 Current Location</strong>
                   <p style={{margin: '5px 0 0', fontSize: '14px'}}>
                     {selectedOrderForMap.latitude && selectedOrderForMap.longitude 
@@ -1114,7 +1275,7 @@ const Menu = () => {
                       : 'Not available yet'}
                   </p>
                 </div>
-                <div style={{backgroundColor: '#d4edda', padding: '15px', borderRadius: '10px'}}>
+                <div className="location-box" style={{backgroundColor: '#d4edda', padding: '15px', borderRadius: '10px'}}>
                   <strong style={{color: '#155724'}}>🏠 Destination</strong>
                   <p style={{margin: '5px 0 0', fontSize: '14px'}}>
                     {selectedOrderForMap.dest_location_name || selectedOrderForMap.delivery_address || 'Address not set'}

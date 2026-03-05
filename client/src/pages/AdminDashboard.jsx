@@ -86,22 +86,47 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FC] font-sans text-slate-600">
+      {/* Global styles to prevent horizontal scroll */}
+      <style>{`
+        html, body {
+          overflow-x: hidden !important;
+          width: 100% !important;
+          position: relative !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        * {
+          max-width: 100vw;
+          box-sizing: border-box;
+        }
+        /* Hide scrollbar for nav on mobile but keep functionality */
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+
       <div className="flex-grow">
-        {/* NAVIGATION - Responsive */}
-        <nav className="bg-white border-b border-slate-100 px-4 md:px-8 py-3 md:py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        {/* NAVIGATION - Responsive with improved mobile handling */}
+        <nav className="bg-white border-b border-slate-100 px-4 md:px-8 py-3 md:py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm w-full">
           <div className="flex items-center gap-2 cursor-pointer flex-shrink-0" onClick={() => navigate('/admin-dashboard')}>
-            <span className="text-[#e63946] text-xl md:text-2xl font-black">Food</span>
-            <span className="text-[#1d3557] text-xl md:text-2xl font-black">Ordering</span>
+            <span className="text-[#e63946] text-xl md:text-2xl font-black whitespace-nowrap">Food</span>
+            <span className="text-[#1d3557] text-xl md:text-2xl font-black whitespace-nowrap">Ordering</span>
           </div>
-          {/* Scrollable nav links on mobile */}
-          <div className="flex items-center gap-4 md:gap-6 text-xs md:text-sm font-medium overflow-x-auto pb-1 flex-nowrap ml-4 hide-scrollbar">
+          
+          {/* Navigation links container - scrollable but constrained */}
+          <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm font-medium overflow-x-auto pb-1 flex-nowrap ml-2 hide-scrollbar" style={{ maxWidth: 'calc(100% - 120px)' }}>
             <button className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1 whitespace-nowrap">Dashboard</button>
             <button onClick={() => navigate('/admin/users')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Users</button>
             <button onClick={() => navigate('/admin/menu')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Menu</button>
             <button onClick={() => navigate('/admin/orders')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Orders</button>
             <button onClick={() => navigate('/admin/sales')} className="text-slate-400 hover:text-blue-500 whitespace-nowrap">Sales</button>
-            <button onClick={handleLogoutClick} className="text-slate-400 hover:text-red-500 flex items-center gap-1 font-bold whitespace-nowrap ml-2 md:ml-4">
-              Logout <LogOut size={14} className="md:size-16" />
+            <button onClick={handleLogoutClick} className="text-slate-400 hover:text-red-500 flex items-center gap-1 font-bold whitespace-nowrap">
+              <span className="hidden sm:inline">Logout</span>
+              <LogOut size={14} className="md:size-16" />
             </button>
           </div>
         </nav>
