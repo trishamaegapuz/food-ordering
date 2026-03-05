@@ -135,7 +135,7 @@ const Users = () => {
   return (
     <div className="min-h-screen flex bg-[#F8F9FC] font-sans text-slate-600 relative overflow-x-hidden">
       
-      {/* 1. FIXED: Mobile Sidebar Overlay - Added pointer-events-none when hidden */}
+      {/* Mobile Sidebar Overlay */}
       <div 
         className={`fixed inset-0 bg-black/50 z-[60] lg:hidden transition-opacity duration-300 ${
           sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
@@ -169,14 +169,6 @@ const Users = () => {
             <SidebarLink icon={<ClipboardList size={18} />} label="Orders" onClick={() => navigateTo('/admin/orders')} />
             <SidebarLink icon={<BarChart3 size={18} />} label="Sales" onClick={() => navigateTo('/admin/sales')} />
           </div>
-
-          <div className="mt-8 px-4">
-            <p className="text-xs text-white/40 uppercase tracking-wider font-bold mb-3 px-2">Quick Actions</p>
-            <div className="space-y-1">
-              <SidebarLink icon={<Plus size={18} />} label="Add Product" onClick={() => navigateTo('/admin/menu/add')} />
-              <SidebarLink icon={<UserPlus size={18} />} label="New User" onClick={() => navigateTo('/admin/users/add')} />
-            </div>
-          </div>
         </nav>
 
         <div className="p-4 border-t border-white/10">
@@ -188,7 +180,7 @@ const Users = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 relative">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 relative">
         {/* Top Bar */}
         <header className="bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-4 sticky top-0 z-40 shadow-sm">
           <button 
@@ -208,14 +200,14 @@ const Users = () => {
           </div>
         </header>
 
-        <main className="p-4 md:p-8 w-full max-w-[1400px] mx-auto">
+        {/* Main Body */}
+        <main className="flex-1 p-4 md:p-8 w-full max-w-[1400px] mx-auto">
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-black text-[#1d3557] tracking-tight">User Management</h1>
             <p className="text-sm text-slate-400 font-medium">Manage accounts and permissions.</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            {/* Table Header Section */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-10">
             <div className="p-6 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4">
                <div className="flex items-center gap-3">
                   <div className="p-3 bg-blue-50 rounded-xl">
@@ -264,15 +256,13 @@ const Users = () => {
                         <div className="flex justify-end gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
                             onClick={() => openEditModal(u)} 
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-transparent hover:border-blue-100 cursor-pointer transition-all"
-                            title="Edit User"
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-transparent hover:border-blue-100 cursor-pointer"
                           >
                             <Edit size={16} />
                           </button>
                           <button 
                             onClick={() => setIsDeletingUser(u.id)} 
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100 cursor-pointer transition-all"
-                            title="Delete User"
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-100 cursor-pointer"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -282,13 +272,20 @@ const Users = () => {
                   ))}
                 </tbody>
               </table>
-              {loading && <div className="p-20 text-center text-slate-400 animate-pulse font-bold">Loading users...</div>}
+              {loading && <div className="p-20 text-center text-slate-400 font-bold">Loading users...</div>}
             </div>
           </div>
         </main>
+
+        {/* FOOTER - Re-added here */}
+        <footer className="bg-[#1d3557] text-white py-6 text-center w-full mt-auto">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">
+            © 2026 Food Ordering. All rights reserved.
+          </p>
+        </footer>
       </div>
 
-      {/* MODALS (Siniguradong mataas ang z-index: z-[100]) */}
+      {/* MODALS */}
       {editingUser && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden">
@@ -298,13 +295,13 @@ const Users = () => {
             </div>
             <form onSubmit={handleUpdate} className="p-6 space-y-4">
               <input 
-                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none"
                 value={editFormData.full_name} 
                 onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
                 placeholder="Full Name" required
               />
               <input 
-                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none"
                 value={editFormData.email} 
                 onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
                 placeholder="Email" required
@@ -317,7 +314,7 @@ const Users = () => {
                 <option value="customer">Customer</option>
                 <option value="admin">Admin</option>
               </select>
-              <button type="submit" className="w-full py-4 bg-[#1d3557] text-white rounded-2xl font-black uppercase tracking-widest text-xs cursor-pointer hover:bg-[#152a45]">
+              <button type="submit" className="w-full py-4 bg-[#1d3557] text-white rounded-2xl font-black uppercase tracking-widest text-xs cursor-pointer">
                 Save Changes
               </button>
             </form>
@@ -333,10 +330,25 @@ const Users = () => {
               <AlertTriangle size={40} className="text-red-500" />
             </div>
             <h3 className="text-xl font-black text-slate-800 mb-2">Delete User?</h3>
-            <p className="text-sm text-slate-400 mb-6">This cannot be undone.</p>
             <div className="flex gap-3">
               <button onClick={() => setIsDeletingUser(null)} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold cursor-pointer">Cancel</button>
               <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold cursor-pointer">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LOGOUT MODAL */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2rem] w-full max-w-sm p-8 text-center shadow-2xl">
+            <div className="p-4 bg-red-50 rounded-2xl inline-block mb-4">
+              <LogOut size={40} className="text-red-500" />
+            </div>
+            <h3 className="text-xl font-black text-slate-800 mb-2">Confirm Logout?</h3>
+            <div className="flex gap-3 mt-6">
+              <button onClick={cancelLogout} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold cursor-pointer">Back</button>
+              <button onClick={confirmLogout} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold cursor-pointer">Logout</button>
             </div>
           </div>
         </div>
